@@ -1,6 +1,6 @@
-import { Deck } from "@/types";
+import { Card } from "@/types";
 
-export const deck: Deck = [
+export const deck: Card[] = [
   { char: "a", count: 10, points: 0 },
   { char: "b", count: 2, points: 0 },
   { char: "c", count: 2, points: 0 },

@@ -4,8 +4,6 @@ export type Card = {
   points: number;
 }
 
-export type Deck = Card[];
-
 export type Player = {
   id: string;
   name: string;

@@ -1,7 +1,7 @@
-"use client"
-import { useEffect, useState} from "react";
-import {Card} from "@/types";
-import {useGame} from "@/contexts/GameContext";
+"use client";
+import React, { useEffect, useState } from "react";
+import type { Card } from "@/types";
+import { useGame } from "@/contexts/GameContext";
 
 const GameRoom = () => {
   const { currentPlayer, deckSize, discardPile, hand, id, setCurrentPlayer, setDeckSize, setDiscardPile, setHand, socket } = useGame();
@@ -14,7 +14,7 @@ const GameRoom = () => {
   useEffect(() => {
     const draw = ({ card, deckSize }: { card: Card, deckSize: number }) => {
       if (card) {
-        setHand((hand = []) => [...hand, card])
+        setHand((hand = []) => [...hand, card]);
       }
 
       setDeckSize(deckSize);
@@ -28,7 +28,7 @@ const GameRoom = () => {
 
     const startTurn = ({ currentPlayer }: { currentPlayer: string }) => {
       setCurrentPlayer(currentPlayer);
-    }
+    };
 
     const endTurn = ({ discarded }: { discarded: Card }) => {
       setDiscardPile(discardPile => [...discardPile, discarded]);
@@ -37,13 +37,13 @@ const GameRoom = () => {
     socket.on("draw", draw);
     socket.on("pick-from-discard", pickFromDiscard);
     socket.on("start-turn", startTurn);
-    socket.on("end-turn", endTurn)
+    socket.on("end-turn", endTurn);
 
     return () => {
       socket.off("draw", draw);
       socket.off("pick-from-discard", pickFromDiscard);
       socket.off("start-turn", startTurn);
-      socket.off("end-turn", endTurn)
+      socket.off("end-turn", endTurn);
     };
   }, [discardPile, setCurrentPlayer, setDeckSize, setDiscardPile, setHand, socket]);
 
@@ -62,7 +62,7 @@ const GameRoom = () => {
       setHand((hand = []) => [...hand, card]);
       setDiscardPile(discardPile => discardPile.filter(c => c !== card));
     }
-  }
+  };
 
   const handleDiscard = (card: Card) => {
     if (hasDrawn && !discarded) {
@@ -86,7 +86,7 @@ const GameRoom = () => {
       setDiscarded(undefined);
       setHasDrawn(false);
     }
-  }
+  };
 
   return (
     <>

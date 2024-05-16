@@ -1,3 +1,20 @@
 {
-  "extends": "next/core-web-vitals"
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "plugins": ["react", "@typescript-eslint"],
+  "ignorePatterns": ["next-env.d.ts", "public/", "*/**/*.sh", "*/**/*.css", "*/**/*.backup"],
+  "rules": {
+    "@typescript-eslint/ban-ts-comment": 0,
+    "eqeqeq": ["error", "always"],
+    "spaced-comment": ["error", "always"],
+    "indent": ["error", 2, { "SwitchCase": 1 }],
+    "quotes": ["error", "double"],
+    "semi": ["error", "always"],
+    "object-shorthand": ["error", "always"],
+    "object-curly-spacing": ["error", "always"]
+  }
 }

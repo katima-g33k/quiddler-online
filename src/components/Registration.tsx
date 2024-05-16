@@ -1,6 +1,6 @@
-import {FormEvent, useEffect} from "react";
-import {useGame} from "@/contexts/GameContext";
-import {Player} from "@/types";
+import React, { FormEvent, useEffect } from "react";
+import { useGame } from "@/contexts/GameContext";
+import { Player } from "@/types";
 
 const Registration = () => {
   const { id, setPlayers, socket } = useGame();
@@ -21,7 +21,7 @@ const Registration = () => {
     event.preventDefault();
     // @ts-ignore
     const name = event.target.name.value;
-    const player = { id, name, score: 0 }
+    const player = { id, name, score: 0 };
 
     socket.emit("player-entered", player);
     setPlayers((players) => [...players, player]);

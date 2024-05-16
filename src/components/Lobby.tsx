@@ -1,3 +1,4 @@
+import React from "react";
 import Registration from "@/components/Registration";
 import WaitingRoom from "@/components/WaitingRoom";
 import { useGame } from "@/contexts/GameContext";

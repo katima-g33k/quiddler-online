@@ -1,4 +1,4 @@
-import {Card, Deck} from "@/types";
+import { Card } from "@/types";
 import { deck as deckInfo } from "@/data/deck";
 
 export function shuffleArray<T>(array: T[]) {

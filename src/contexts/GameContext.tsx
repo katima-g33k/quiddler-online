@@ -1,4 +1,4 @@
-import {
+import React, {
   createContext,
   Dispatch,
   PropsWithChildren,
@@ -10,7 +10,7 @@ import {
 } from "react";
 import { Socket } from "socket.io-client";
 import { socket } from "@/lib/socket";
-import {Card, Player} from "@/types";
+import { Card, Player } from "@/types";
 
 type GameContext = {
   connected: boolean;
@@ -64,7 +64,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
 
     return () => {
       socket.disconnect();
-    }
+    };
   }, []);
 
   const context: GameContext = {
@@ -89,7 +89,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
     <GameContext.Provider value={context}>
       {children}
     </GameContext.Provider>
-  )
+  );
 };
 
 export const useGame = () => useContext(GameContext);

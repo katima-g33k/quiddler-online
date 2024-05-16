@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { useGame } from "@/contexts/GameContext";
 
 import type { Card } from "@/types";

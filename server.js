@@ -1,6 +1,7 @@
-const { createServer } = require('http');
-const { parse } = require('url');
-const next = require('next');
+/* eslint-disable @typescript-eslint/no-var-requires,no-undef */
+const { createServer } = require("http");
+const { parse } = require("url");
+const next = require("next");
 const { Server } = require("socket.io");
 
 const deckInfo = [
@@ -62,25 +63,21 @@ let deck;
 let round;
 const players = [];
 
-const app = next({ dev: process.env.NODE_ENV !== 'production' });
+const app = next({ dev: process.env.NODE_ENV !== "production" });
 const handle = app.getRequestHandler();
 
 app.prepare().then(() => {
-  const server = createServer((req, res) => {
-    const parsedUrl = parse(req.url, true);
-    handle(req, res, parsedUrl);
-  });
-
+  const server = createServer((req, res) => handle(req, res, parse(req.url, true)));
   const io = new Server(server);
 
-  io.on('connection', socket => {
-    console.log('Client connected');
+  io.on("connection", socket => {
+    console.log("Client connected");
 
-    socket.on('player-entered', player => {
+    socket.on("player-entered", player => {
       players.push(player);
       socket.join(player.id);
-      socket.broadcast.emit('player-entered', player)
-    })
+      socket.broadcast.emit("player-entered", player);
+    });
 
     socket.on("start-game", () => {
       const hands = players.map(() => []);
@@ -112,30 +109,30 @@ app.prepare().then(() => {
       const deckSize = deck.length;
 
       io.to(id).emit("draw", { card, deckSize });
-      socket.broadcast.emit('draw', { deckSize });
+      socket.broadcast.emit("draw", { deckSize });
     });
 
     socket.on("pick-from-discard", () => {
-      socket.broadcast.emit('pick-from-discard');
+      socket.broadcast.emit("pick-from-discard");
     });
 
     socket.on("end-turn", ({ discarded, id }) => {
-      socket.broadcast.emit('end-turn', { discarded });
+      socket.broadcast.emit("end-turn", { discarded });
 
       const currentPlayerIndex = players.findIndex(player => player.id === id);
       const nextPlayerIndex = currentPlayerIndex === players.length - 1 ? 0 : currentPlayerIndex + 1;
       const nextPlayer = players[nextPlayerIndex];
 
-      io.emit('start-turn', { currentPlayer: nextPlayer.id });
+      io.emit("start-turn", { currentPlayer: nextPlayer.id });
     });
 
-    socket.on('disconnect', () => {
-      console.log('Client disconnected');
+    socket.on("disconnect", () => {
+      console.log("Client disconnected");
     });
   });
 
   server.listen(3000, (err) => {
     if (err) throw err;
-    console.log('> Ready on http://localhost:3000');
+    console.log("> Ready on http://localhost:3000");
   });
 });
