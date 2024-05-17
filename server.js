@@ -76,7 +76,7 @@ app.prepare().then(() => {
     socket.on("player-entered", player => {
       players.push(player);
       socket.join(player.id);
-      socket.broadcast.emit("player-entered", player);
+      io.emit("player-entered", players);
     });
 
     socket.on("start-game", () => {

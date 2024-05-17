@@ -1,13 +1,23 @@
-import React, { FormEvent, useEffect } from "react";
+import React, { FormEvent, useEffect, useState } from "react";
+import classNames from "classnames";
+import Button from "@/components/Button";
+import H2 from "@/components/H2";
 import { useGame } from "@/contexts/GameContext";
-import { Player } from "@/types";
+import type { Player } from "@/types";
 
-const Registration = () => {
+type RegistrationProps = {
+  className?: string;
+}
+
+const MIN_LENGTH = 3;
+
+const Registration = ({ className }: RegistrationProps) => {
+  const [name, setName] = useState("");
   const { id, setPlayers, socket } = useGame();
 
   useEffect(() => {
-    const playerEntered = (player: Player) => {
-      setPlayers((players) => [...players, player]);
+    const playerEntered = (players: Player[]) => {
+      setPlayers(players);
     };
 
     socket.on("player-entered", playerEntered);
@@ -17,21 +27,22 @@ const Registration = () => {
     };
   }, [setPlayers, socket]);
 
-  const handleOnEnter = (event: FormEvent<HTMLFormElement>) => {
+  const handleOnSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    // @ts-ignore
-    const name = event.target.name.value;
-    const player = { id, name, score: 0 };
 
-    socket.emit("player-entered", player);
-    setPlayers((players) => [...players, player]);
+    if (name.length >= MIN_LENGTH) {
+      socket.emit("player-entered", { id, name, score: 0 });
+    }
   };
 
   return (
-    <form onSubmit={handleOnEnter}>
-      <input name="name"/>
-      <button type="submit">Enter</button>
-    </form>
+    <div className={classNames(className, "flex flex-1 flex-col gap-8 items-center")}>
+      <H2>Please enter your name to begin</H2>
+      <form className="flex flex-col gap-4 items-center" onSubmit={handleOnSubmit}>
+        <input className="px-2 py-3" name="name" onChange={e => setName(e.target.value)} placeholder="Name" value={name} />
+        <Button disabled={name.length < MIN_LENGTH} label="Enter" type="submit"/>
+      </form>
+    </div>
   );
 };
 

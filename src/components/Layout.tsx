@@ -6,11 +6,7 @@ import { useGame } from "@/contexts/GameContext";
 const Layout = () => {
   const { round } = useGame();
 
-  return (
-    <main>
-      {!round ? <Lobby /> : <GameRoom />}
-    </main>
-  );
+  return !round ? <Lobby /> : <GameRoom />;
 };
 
 export default Layout;
