@@ -48,9 +48,9 @@ function shuffleArray(array) {
 function initDeck() {
   const deck = [];
 
-  deckInfo.forEach((card) => {
+  deckInfo.forEach((card, index) => {
     for (let i = 0; i < card.count; i++) {
-      deck.push(card);
+      deck.push({ ...card, id: index + i });
     }
   });
 
@@ -74,7 +74,7 @@ app.prepare().then(() => {
     console.log("Client connected");
 
     socket.on("player-entered", player => {
-      players.push(player);
+      players.push({ ...player, score: 0, words: [] });
       socket.join(player.id);
       io.emit("player-entered", players);
     });

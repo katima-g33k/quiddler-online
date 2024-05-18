@@ -31,7 +31,7 @@ const Registration = ({ className }: RegistrationProps) => {
     event.preventDefault();
 
     if (name.length >= MIN_LENGTH) {
-      socket.emit("player-entered", { id, name, score: 0 });
+      socket.emit("player-entered", { id, name });
     }
   };
 

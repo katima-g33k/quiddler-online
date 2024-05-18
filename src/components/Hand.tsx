@@ -7,7 +7,7 @@ const Hand = () => {
 
   return (
     <div className="flex gap-2">
-      {hand.map((card, index) => <HeldCard key={index} card={card} />)}
+      {hand.map(card => <HeldCard key={card.id} card={card} />)}
     </div>
   );
 };

@@ -4,10 +4,10 @@ import type { Card } from "@/types";
 import Button from "@/components/Button";
 
 const EndTurnButton = () => {
-  const { discarded, id, setCurrentPlayer, setDiscardPile,setDiscarded, setHasDrawn, socket } = useGame();
+  const { canEndTurn, discarded, id, setCurrentPlayer, setDiscardPile,setDiscarded, setHasDrawn, socket } = useGame();
 
   const handleEndTurn = () => {
-    if (discarded) {
+    if (canEndTurn && discarded) {
       socket.emit("end-turn", { discarded, id });
       setCurrentPlayer("");
       setDiscardPile(discardPile => [...discardPile, discarded]);
@@ -29,7 +29,7 @@ const EndTurnButton = () => {
   }, []);
 
   return (
-    <Button disabled={!discarded} label="End turn" onClick={handleEndTurn} />
+    <Button disabled={!canEndTurn} label="End turn" onClick={handleEndTurn} />
   );
 };
 

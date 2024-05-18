@@ -1,4 +1,4 @@
-import React from "react";
+import React, { MouseEvent } from "react";
 import Card from "@/components/Card";
 import { useGame } from "@/contexts/GameContext";
 import type { Card as TCard } from "@/types";
@@ -8,24 +8,28 @@ type HeldCardProps = {
 }
 
 const HeldCard = ({ card }: HeldCardProps) => {
-  const { canDiscard, setDiscarded, setHand } = useGame();
+  const { canPlay, selectedCards, setSelectedCards } = useGame();
+  const selectedIndex = selectedCards.findIndex(c => c === card) + 1 || undefined;
 
-  const handleDiscard = () => {
-    if (canDiscard) {
-      setHand(hand => hand?.filter(c => c !== card));
-      setDiscarded(card);
+  const handleSelectCard = (event: MouseEvent<HTMLInputElement>) => {
+    // @ts-ignore
+    const checked = event.target.checked;
+
+    if (checked) {
+      setSelectedCards(selectedCards => [...selectedCards, card]);
+    } else {
+      setSelectedCards(selectedCards => selectedCards.filter(c => c !== card));
     }
   };
 
   return (
     <Card
       card={card}
-      disabled={!canDiscard}
-      onClick={handleDiscard}
+      disabled={!canPlay}
+      index={selectedIndex}
+      onClick={handleSelectCard}
       type="checkbox"
-    >
-      {card.char}
-    </Card>
+    />
   );
 };
 
