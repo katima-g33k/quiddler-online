@@ -87,13 +87,15 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
   const [selectedCards, setSelectedCards] = useState<Card[]>([]);
   const [playedCards, setPlayedCards] = useState<Card[][]>([]);
 
+  const isLastTurn = players.some(player => player.words.length);
+  const thisPlayer = players.find(player => player.id === id);
   const canDiscard = !discarded && selectedCards.length === 1;
   const canDraw = id === currentPlayer && !hasDrawn;
   const canPlay = hasDrawn;
-  const canEndTurn = canPlay && !!discarded && (hand.length === 0 || playedCards.length === 0);
+  const canEndTurn = canPlay && !!discarded && (isLastTurn || hand.length === 0 || playedCards.length === 0);
 
   const connected = players.some(player => player.id === id);
-  const words: Word[] = playedCards.map((cards) => {
+  const words: Word[] = thisPlayer?.words.length ? thisPlayer.words : playedCards.map((cards) => {
     return cards.reduce(({ cards, points, word }, card) => {
       return {
         cards: [...cards, card],

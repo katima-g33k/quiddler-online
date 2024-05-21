@@ -9,7 +9,7 @@ type HeldCardProps = {
 
 const HeldCard = ({ card }: HeldCardProps) => {
   const { canPlay, selectedCards, setSelectedCards } = useGame();
-  const selectedIndex = selectedCards.findIndex(c => c === card) + 1 || undefined;
+  const selectedIndex = selectedCards.findIndex(c => c.id === card.id) + 1 || undefined;
 
   const handleSelectCard = (event: MouseEvent<HTMLInputElement>) => {
     // @ts-ignore
@@ -18,7 +18,7 @@ const HeldCard = ({ card }: HeldCardProps) => {
     if (checked) {
       setSelectedCards(selectedCards => [...selectedCards, card]);
     } else {
-      setSelectedCards(selectedCards => selectedCards.filter(c => c !== card));
+      setSelectedCards(selectedCards => selectedCards.filter(c => c.id !== card.id));
     }
   };
 

@@ -1,6 +1,4 @@
-"use client";
 import React, { useEffect } from "react";
-import PlayWordButton from "@/components/PlayWordButton";
 import Deck from "@/components/Deck";
 import DiscardButton from "@/components/DiscardButton";
 import DiscardPile from "@/components/DiscardPile";
@@ -8,11 +6,13 @@ import EndTurnButton from "@/components/EndTurnButton";
 import H1 from "@/components/H1";
 import H2 from "@/components/H2";
 import Hand from "@/components/Hand";
-import { useGame } from "@/contexts/GameContext";
+import PlayWordButton from "@/components/PlayWordButton";
 import WordList from "@/components/WordList";
+import { useGame } from "@/contexts/GameContext";
+import { Card, Player } from "@/types";
 
 const GameRoom = () => {
-  const { currentPlayer, id, players, round, setCurrentPlayer, socket } = useGame();
+  const { currentPlayer, id, players, round, setCurrentPlayer, setDeckSize, setDiscardPile, setHand, setPlayers, setRound, socket } = useGame();
   const currentPlayerName = players.find(player => player.id === currentPlayer)?.name;
 
   useEffect(() => {
@@ -20,11 +20,43 @@ const GameRoom = () => {
       setCurrentPlayer(currentPlayer);
     };
 
+    const endRound = () => {
+      // TODO: Display modal with round info and confirm to start next round
+      socket.emit("start-round");
+    };
+
+    const startRound = ({ currentPlayer, deckSize, discardPile, hand, players, round }: { currentPlayer: string; deckSize: number; discardPile: Card[]; hand: Card[]; players: Player[]; round: number }) => {
+      setCurrentPlayer(currentPlayer);
+      setDeckSize(deckSize);
+      setDiscardPile(discardPile);
+      setHand(hand);
+      setPlayers(players);
+      setRound(round);
+    };
+
+    const endGame = ({ players }: {players: Player[]}) => {
+      setPlayers([...players]);
+
+      // TODO: Display results
+      players
+        .sort((a, b) => b.score - a.score)
+        .forEach((player, index) => {
+          console.log(`#${index + 1} - ${player.name} (${player.score} pts)`);
+        });
+    };
+
     socket.on("start-turn", startTurn);
+    socket.on("end-round", endRound);
+    socket.on("start-round", startRound);
+    socket.on("end-game", endGame);
 
     return () => {
       socket.off("start-turn", startTurn);
+      socket.off("end-round", endRound);
+      socket.off("start-round", startRound);
+      socket.off("end-game", endGame);
     };
+
   }, []);
 
   return (

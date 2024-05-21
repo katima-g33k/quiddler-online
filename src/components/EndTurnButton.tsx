@@ -1,24 +1,37 @@
 import React, { useEffect } from "react";
-import { useGame } from "@/contexts/GameContext";
-import type { Card } from "@/types";
 import Button from "@/components/Button";
+import { useGame } from "@/contexts/GameContext";
+import type { Card, Player } from "@/types";
 
 const EndTurnButton = () => {
-  const { canEndTurn, discarded, id, setCurrentPlayer, setDiscardPile,setDiscarded, setHasDrawn, socket } = useGame();
+  const { canEndTurn, discarded, hand, id, setCurrentPlayer, setDiscardPile,setDiscarded, setHasDrawn, setPlayedCards, setPlayers, socket, words } = useGame();
 
   const handleEndTurn = () => {
-    if (canEndTurn && discarded) {
-      socket.emit("end-turn", { discarded, id });
+    if (canEndTurn) {
+      socket.emit("end-turn", id, { discarded, hand, words });
+
+      if (words.length) {
+        setPlayers(players => players.map(player => (
+          player.id !== id ? player : {
+            ...player,
+            remainingCards: hand,
+            words,
+          }
+        )));
+      }
+
       setCurrentPlayer("");
-      setDiscardPile(discardPile => [...discardPile, discarded]);
+      setDiscardPile(discardPile => [...discardPile, discarded!]);
       setDiscarded(undefined);
       setHasDrawn(false);
+      setPlayedCards([]);
     }
   };
 
   useEffect(() => {
-    const endTurn = ({ discarded }: { discarded: Card }) => {
+    const endTurn = ({ discarded, players }: { discarded: Card, players: Player[] }) => {
       setDiscardPile(discardPile => [...discardPile, discarded]);
+      setPlayers(players);
     };
 
     socket.on("end-turn", endTurn);
