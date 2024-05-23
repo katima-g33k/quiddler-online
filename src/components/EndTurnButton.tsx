@@ -4,7 +4,7 @@ import { useGame } from "@/contexts/GameContext";
 import type { Card, Player } from "@/types";
 
 const EndTurnButton = () => {
-  const { canEndTurn, discarded, hand, id, setCurrentPlayer, setDiscardPile,setDiscarded, setHasDrawn, setPlayedCards, setPlayers, socket, words } = useGame();
+  const { canEndTurn, discarded, hand, id, setDiscardPile,setDiscarded, setHasDrawn, setPlayedCards, setPlayers, socket, words } = useGame();
 
   const handleEndTurn = () => {
     if (canEndTurn) {
@@ -20,7 +20,6 @@ const EndTurnButton = () => {
         )));
       }
 
-      setCurrentPlayer("");
       setDiscardPile(discardPile => [...discardPile, discarded!]);
       setDiscarded(undefined);
       setHasDrawn(false);

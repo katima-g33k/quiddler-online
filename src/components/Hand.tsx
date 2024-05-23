@@ -6,7 +6,7 @@ const Hand = () => {
   const { hand } = useGame();
 
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-2 flex-wrap">
       {hand.map(card => <HeldCard key={card.id} card={card} />)}
     </div>
   );

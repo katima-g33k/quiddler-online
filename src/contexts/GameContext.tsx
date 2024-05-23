@@ -10,9 +10,10 @@ import React, {
 } from "react";
 import type { Socket } from "socket.io-client";
 import { socket } from "@/lib/socket";
-import type { Card, Player, Word } from "@/types";
+import type { Bonuses, Card, Player, Word } from "@/types";
 
 type GameContext = {
+  bonuses?: Bonuses;
   canDiscard: boolean;
   canDraw: boolean;
   canEndTurn: boolean;
@@ -29,6 +30,7 @@ type GameContext = {
   players: Player[];
   round: number;
   selectedCards: Card[];
+  setBonuses: Dispatch<SetStateAction<Bonuses | undefined>>;
   setCurrentPlayer: Dispatch<SetStateAction<string>>;
   setDeckSize: Dispatch<SetStateAction<number>>;
   setDiscarded: Dispatch<SetStateAction<Card | undefined>>;
@@ -44,6 +46,7 @@ type GameContext = {
 };
 
 const GameContext = createContext<GameContext>({
+  bonuses: undefined,
   canDiscard: false,
   canDraw: false,
   canEndTurn: false,
@@ -60,6 +63,7 @@ const GameContext = createContext<GameContext>({
   players: [],
   round: 0,
   selectedCards: [],
+  setBonuses: () => undefined,
   setCurrentPlayer: () => undefined,
   setDeckSize: () => undefined,
   setDiscarded: () => undefined,
@@ -86,6 +90,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
   const [discardPile, setDiscardPile] = useState<Card[]>([]);
   const [selectedCards, setSelectedCards] = useState<Card[]>([]);
   const [playedCards, setPlayedCards] = useState<Card[][]>([]);
+  const [bonuses, setBonuses] = useState<Bonuses>();
 
   const isLastTurn = players.some(player => player.words.length);
   const thisPlayer = players.find(player => player.id === id);
@@ -114,6 +119,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
   }, []);
 
   const context: GameContext = {
+    bonuses,
     canDiscard,
     canDraw,
     canEndTurn,
@@ -130,6 +136,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
     players,
     round,
     selectedCards,
+    setBonuses,
     setCurrentPlayer,
     setDeckSize,
     setDiscarded,

@@ -1,3 +1,23 @@
+export type LongestWord = {
+  player: Player;
+  word: string;
+};
+
+export type MostWords = {
+  count: number;
+  player: Player;
+}
+
+export type Bonuses = {
+ longestWord?: LongestWord[];
+ mostWords?: MostWords[];
+}
+
+export type BonusOptions = {
+  useLongestWordBonus?: boolean,
+  useMostWordsBonus?: boolean;
+}
+
 export type Card = {
   char: string;
   count: number;

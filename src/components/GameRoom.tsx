@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Deck from "@/components/Deck";
 import DiscardButton from "@/components/DiscardButton";
 import DiscardPile from "@/components/DiscardPile";
@@ -7,42 +7,44 @@ import H1 from "@/components/H1";
 import H2 from "@/components/H2";
 import Hand from "@/components/Hand";
 import PlayWordButton from "@/components/PlayWordButton";
+import GameEndModal from "@/components/GameEndModal";
 import WordList from "@/components/WordList";
 import { useGame } from "@/contexts/GameContext";
-import { Card, Player } from "@/types";
+import { Bonuses, Card, Player } from "@/types";
+import RoundEndModal from "@/components/RoundEndModal";
 
 const GameRoom = () => {
-  const { currentPlayer, id, players, round, setCurrentPlayer, setDeckSize, setDiscardPile, setHand, setPlayers, setRound, socket } = useGame();
+  const { currentPlayer, id, players, round, setBonuses, setCurrentPlayer, setDeckSize, setDiscardPile, setHand, setPlayers, setRound, socket } = useGame();
   const currentPlayerName = players.find(player => player.id === currentPlayer)?.name;
+  const [showRoundEndModal, setShowRoundEndModal] = useState(false);
+  const [showGameEndModal, setShowGameEndModal] = useState(false);
 
   useEffect(() => {
     const startTurn = ({ currentPlayer }: { currentPlayer: string }) => {
       setCurrentPlayer(currentPlayer);
     };
 
-    const endRound = () => {
-      // TODO: Display modal with round info and confirm to start next round
-      socket.emit("start-round");
+    const endRound = ({ bonuses, players }: { bonuses: Bonuses, players: Player[] }) => {
+      setBonuses(bonuses);
+      setPlayers(players);
+      setShowRoundEndModal(true);
     };
 
     const startRound = ({ currentPlayer, deckSize, discardPile, hand, players, round }: { currentPlayer: string; deckSize: number; discardPile: Card[]; hand: Card[]; players: Player[]; round: number }) => {
+      setBonuses(undefined);
       setCurrentPlayer(currentPlayer);
       setDeckSize(deckSize);
       setDiscardPile(discardPile);
       setHand(hand);
       setPlayers(players);
       setRound(round);
+      setShowRoundEndModal(false);
     };
 
-    const endGame = ({ players }: {players: Player[]}) => {
-      setPlayers([...players]);
-
-      // TODO: Display results
-      players
-        .sort((a, b) => b.score - a.score)
-        .forEach((player, index) => {
-          console.log(`#${index + 1} - ${player.name} (${player.score} pts)`);
-        });
+    const endGame = ({ bonuses, players }: { bonuses: Bonuses, players: Player[] }) => {
+      setBonuses(bonuses);
+      setPlayers(players);
+      setShowGameEndModal(true);
     };
 
     socket.on("start-turn", startTurn);
@@ -82,6 +84,8 @@ const GameRoom = () => {
           <EndTurnButton />
         </div>
       </div>
+      {showRoundEndModal && <RoundEndModal open />}
+      {showGameEndModal && <GameEndModal open />}
     </>
   );
 };

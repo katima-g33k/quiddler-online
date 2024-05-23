@@ -3,8 +3,9 @@ const { createServer } = require("http");
 const { parse } = require("url");
 const next = require("next");
 const { Server } = require("socket.io");
+const { calculateBonuses } = require("./src/server/calculateBonuses");
 
-const ROUNDS = 10;
+const ROUNDS = 8;
 
 const deckInfo = [
   { char: "a", count: 10, points: 2 },
@@ -65,6 +66,7 @@ let deck;
 let firstToFinish;
 let round;
 let readyToStartRoundCount = 0;
+let readyToStartGameCount = 0;
 let useLongestWordBonus = true;
 let useMostWordsBonus = true;
 const players = [];
@@ -75,6 +77,33 @@ const handle = app.getRequestHandler();
 app.prepare().then(() => {
   const server = createServer((req, res) => handle(req, res, parse(req.url, true)));
   const io = new Server(server);
+  const startGame = () => {
+    const hands = players.map(() => []);
+    const discardPile = [];
+    deck = initDeck();
+    round = 1;
+    firstToFinish = undefined;
+    readyToStartRoundCount = 0;
+    readyToStartGameCount = 0;
+
+    for (let i = 0; i < round + 3; i++) {
+      for (let j = 0; j < players.length; j++) {
+        hands[j].push(deck.pop());
+      }
+    }
+
+    discardPile.push(deck.pop());
+
+    players.forEach(({ id }, index) => {
+      io.to(id).emit("start-game", {
+        currentPlayer: players[0].id,
+        deckSize: deck.length,
+        discardPile,
+        hand: hands[index],
+        round,
+      });
+    });
+  };
 
   io.on("connection", socket => {
     console.log("Client connected");
@@ -86,28 +115,7 @@ app.prepare().then(() => {
     });
 
     socket.on("start-game", () => {
-      const hands = players.map(() => []);
-      const discardPile = [];
-      deck = initDeck();
-      round = 1;
-
-      for (let i = 0; i < round + 3; i++) {
-        for (let j = 0; j < players.length; j++) {
-          hands[j].push(deck.pop());
-        }
-      }
-
-      discardPile.push(deck.pop());
-
-      players.forEach(({ id }, index) => {
-        io.to(id).emit("start-game", {
-          currentPlayer: players[0].id,
-          deckSize: deck.length,
-          discardPile,
-          hand: hands[index],
-          round,
-        });
-      });
+      startGame();
     });
 
     socket.on("draw", (id) => {
@@ -140,51 +148,24 @@ app.prepare().then(() => {
       const nextPlayer = players[nextPlayerIndex];
 
       if (nextPlayer.id === firstToFinish) {
-        // TODO: Handle bonuses (longest word & most words)
-        const bonuses = {
-          longestWord: [],
-          mostWords: [],
-        };
+        const bonuses = calculateBonuses(players, { useLongestWordBonus, useMostWordsBonus });
 
-        players.forEach((player, index) => {
-          const playerLongestWord = player.words.sort((a, b) => b.word.length - a.word.length)[0];
-
-          if (index === 0) {
-            bonuses.longestWord.push({ player, word: playerLongestWord.word });
-            bonuses.mostWords.push({ player, count: player.words.length });
-          } else {
-            if (bonuses.longestWord[0].length < playerLongestWord.length) {
-              bonuses.longestWord = [{ player, word: playerLongestWord.word }];
-            } else if (bonuses.longestWord[0].length === playerLongestWord.length) {
-              bonuses.longestWord.push({ player, word: playerLongestWord.word });
-            }
-
-            if (bonuses.mostWords.count < player.words.length) {
-              bonuses.mostWords = [{ player, count: player.words.length }];
-            } else if (bonuses.mostWords.count === player.words.length) {
-              bonuses.mostWords.push({ player, count: player.words.length });
-            }
-          }
-
+        players.forEach((player) => {
           player.score += player.words.reduce((pts, word) => pts + word.points, 0) - player.remainingCards.reduce((pts, card) => pts + card.points, 0);
         });
 
-        if (useLongestWordBonus) {
-          bonuses.longestWord.forEach(({ player }) => {
-            players.find(({ id }) => id === player.id).score += 10;
-          });
-        }
+        bonuses.longestWord?.forEach((longestWord) => {
+          players.find(({ id }) => id === longestWord.player.id).score += 10;
+        });
 
-        if (useMostWordsBonus) {
-          bonuses.mostWords.forEach(({ player }) => {
-            players.find(({ id }) => id === player.id).score += 10;
-          });
-        }
+        bonuses.mostWords?.forEach((longestWord) => {
+          players.find(({ id }) => id === longestWord.player.id).score += 10;
+        });
 
         if (round === ROUNDS) {
-          io.emit("end-game", { players });
+          io.emit("end-game", { bonuses, players });
         } else {
-          io.emit("end-round", { players });
+          io.emit("end-round", { bonuses, players });
         }
       } else {
         io.emit("start-turn", { currentPlayer: nextPlayer.id });
@@ -226,6 +207,14 @@ app.prepare().then(() => {
             players,
           });
         });
+      }
+    });
+
+    socket.on("start-new-game", () => {
+      readyToStartGameCount++;
+
+      if (readyToStartGameCount === players.length) {
+        startGame();
       }
     });
 
