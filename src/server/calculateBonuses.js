@@ -40,6 +40,7 @@ const calculateBonuses = (players, { useLongestWordBonus, useMostWordsBonus }) =
   mostWords: useMostWordsBonus ? calculateMostWordsBonus(players) : undefined,
 });
 
+// eslint-disable-next-line no-undef
 module.exports = {
   calculateBonuses
 };
