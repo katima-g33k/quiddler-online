@@ -9,6 +9,7 @@ import React, {
   useState
 } from "react";
 import type { Socket } from "socket.io-client";
+import { v4 as uuid } from "uuid";
 import { socket } from "@/lib/socket";
 import type { Bonuses, Card, Player, Word } from "@/types";
 
@@ -79,7 +80,7 @@ const GameContext = createContext<GameContext>({
 });
 
 export const GameProvider = ({ children }: PropsWithChildren) => {
-  const id = useMemo(() => crypto.randomUUID(), []);
+  const id = useMemo(() => uuid(), []);
   const [discarded, setDiscarded] = useState<Card>();
   const [players, setPlayers] = useState<Player[]>([]);
   const [hand, setHand] = useState<Card[]>([]);
