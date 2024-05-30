@@ -1,4 +1,4 @@
-import type { Bonuses, BonusOptions, LongestWord, MostWords, Player } from "@/types";
+import type { Bonuses, BonusOptions, LongestWord, MostWords, Player } from "../types";
 
 const calculateLongestWordBonus = (players: Player[]) => players.reduce((longestWord: LongestWord[], player) => {
   const playerLongestWord = player.words.toSorted((a, b) => b.word.length - a.word.length)[0];

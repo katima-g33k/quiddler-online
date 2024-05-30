@@ -1,9 +1,12 @@
-/* eslint-disable @typescript-eslint/no-var-requires,no-undef */
-const { createServer } = require("http");
-const { parse } = require("url");
-const next = require("next");
-const { Server } = require("socket.io");
-const { calculateBonuses } = require("./src/server/calculateBonuses");
+import next from "next";
+import { createServer } from "http";
+import { parse } from "url";
+import { Server } from "socket.io";
+// @ts-ignore
+import { calculateBonuses } from "./src/lib/calculateBonuses.ts";
+
+import type { Socket } from "socket.io";
+import type { Bonuses, Card, Player } from "./src/types";
 
 const ROUNDS = 8;
 
@@ -41,7 +44,7 @@ const deckInfo = [
   { char: "th", count: 2, points: 2 },
 ];
 
-function shuffleArray(array) {
+function shuffleArray<T>(array: T[]) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [array[i], array[j]] = [array[j], array[i]];
@@ -49,7 +52,7 @@ function shuffleArray(array) {
 }
 
 function initDeck() {
-  const deck = [];
+  const deck: Card[] = [];
 
   deckInfo.forEach((card) => {
     for (let i = 0; i < card.count; i++) {
@@ -62,24 +65,27 @@ function initDeck() {
   return deck;
 }
 
-let deck;
-let firstToFinish;
-let round;
+let deck: Card[] = [];
+let firstToFinish: string | undefined;
+let round = 0;
 let readyToStartRoundCount = 0;
 let readyToStartGameCount = 0;
-let useLongestWordBonus = true;
-let useMostWordsBonus = true;
-const players = [];
+const useLongestWordBonus = true;
+const useMostWordsBonus = true;
+const players: Player[] = [];
 
 const app = next({ dev: process.env.NODE_ENV !== "production" });
 const handle = app.getRequestHandler();
 
 app.prepare().then(() => {
-  const server = createServer((req, res) => handle(req, res, parse(req.url, true)));
+  const server = createServer((req, res) => {
+    // @ts-ignore
+    return handle(req, res, parse(req.url, true));
+  });
   const io = new Server(server);
   const startGame = () => {
-    const hands = players.map(() => []);
-    const discardPile = [];
+    const hands: Card[][] = players.map(() => []);
+    const discardPile: Card[] = [];
     deck = initDeck();
     round = 1;
     firstToFinish = undefined;
@@ -88,11 +94,11 @@ app.prepare().then(() => {
 
     for (let i = 0; i < round + 3; i++) {
       for (let j = 0; j < players.length; j++) {
-        hands[j].push(deck.pop());
+        hands[j].push(deck.pop()!);
       }
     }
 
-    discardPile.push(deck.pop());
+    discardPile.push(deck.pop()!);
 
     players.forEach(({ id }, index) => {
       io.to(id).emit("start-game", {
@@ -105,7 +111,7 @@ app.prepare().then(() => {
     });
   };
 
-  io.on("connection", socket => {
+  io.on("connection", (socket: Socket) => {
     console.log("Client connected");
 
     socket.on("player-entered", player => {
@@ -137,8 +143,11 @@ app.prepare().then(() => {
 
       if (firstToFinish !== undefined) {
         const player = players.find((player) => player.id === id);
-        player.remainingCards = hand;
-        player.words = words;
+
+        if (player) {
+          player.remainingCards = hand;
+          player.words = words;
+        }
       }
 
       socket.broadcast.emit("end-turn", { discarded, players });
@@ -148,18 +157,26 @@ app.prepare().then(() => {
       const nextPlayer = players[nextPlayerIndex];
 
       if (nextPlayer.id === firstToFinish) {
-        const bonuses = calculateBonuses(players, { useLongestWordBonus, useMostWordsBonus });
+        const bonuses: Bonuses = calculateBonuses(players, { useLongestWordBonus, useMostWordsBonus });
 
         players.forEach((player) => {
           player.score += player.words.reduce((pts, word) => pts + word.points, 0) - player.remainingCards.reduce((pts, card) => pts + card.points, 0);
         });
 
         bonuses.longestWord?.forEach((longestWord) => {
-          players.find(({ id }) => id === longestWord.player.id).score += 10;
+          const player = players.find(({ id }) => id === longestWord.player.id);
+
+          if (player) {
+            player.score += 10;
+          }
         });
 
-        bonuses.mostWords?.forEach((longestWord) => {
-          players.find(({ id }) => id === longestWord.player.id).score += 10;
+        bonuses.mostWords?.forEach((mostWords) => {
+          const player = players.find(({ id }) => id === mostWords.player.id);
+
+          if (player) {
+            player.score += 10;
+          }
         });
 
         if (round === ROUNDS) {
@@ -184,18 +201,18 @@ app.prepare().then(() => {
           player.words = [];
         });
 
-        const hands = players.map(() => []);
-        const discardPile = [];
+        const hands: Card[][] = players.map(() => []);
+        const discardPile: Card[] = [];
         deck = initDeck();
         round++;
 
         for (let i = 0; i < round + 3; i++) {
           for (let j = 0; j < players.length; j++) {
-            hands[j].push(deck.pop());
+            hands[j].push(deck.pop()!);
           }
         }
 
-        discardPile.push(deck.pop());
+        discardPile.push(deck.pop()!);
 
         players.forEach(({ id }, index) => {
           io.to(id).emit("start-round", {
@@ -223,6 +240,7 @@ app.prepare().then(() => {
     });
   });
 
+  // @ts-ignore
   server.listen(3000, (err) => {
     if (err) throw err;
     console.log("> Ready on http://localhost:3000");
