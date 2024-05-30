@@ -86,7 +86,7 @@ app.prepare().then(() => {
     readyToStartRoundCount = 0;
     readyToStartGameCount = 0;
 
-    for (let i = 0; i < round + 3; i++) {
+    for (let i = 0; i < round + 2; i++) {
       for (let j = 0; j < players.length; j++) {
         hands[j].push(deck.pop());
       }
@@ -189,7 +189,7 @@ app.prepare().then(() => {
         deck = initDeck();
         round++;
 
-        for (let i = 0; i < round + 3; i++) {
+        for (let i = 0; i < round + 2; i++) {
           for (let j = 0; j < players.length; j++) {
             hands[j].push(deck.pop());
           }
