@@ -29,6 +29,16 @@ const HeldCard = ({ card, onMoveLeft, onMoveRight }: HeldCardProps) => {
     }
   };
 
+  const handleOnMoveLeft = () => {
+    onMoveLeft(card);
+    setHover(false);
+  };
+
+  const handleOnMoveRight = () => {
+    onMoveRight(card);
+    setHover(false);
+  };
+
   return (
     <div
       className="flex items-center relative"
@@ -36,7 +46,7 @@ const HeldCard = ({ card, onMoveLeft, onMoveRight }: HeldCardProps) => {
       onMouseLeave={() => setHover(false)}
     >
       {hover && !isFirst && (
-        <button className="absolute z-10 -left-1" onClick={() => onMoveLeft(card)}>
+        <button className="absolute z-10 -left-1" onClick={handleOnMoveLeft}>
           <ArrowLeft />
         </button>
       )}
@@ -48,7 +58,7 @@ const HeldCard = ({ card, onMoveLeft, onMoveRight }: HeldCardProps) => {
         type="checkbox"
       />
       {hover && !isLast && (
-        <button className="absolute z-10 -right-1" onClick={() => onMoveRight(card)}>
+        <button className="absolute z-10 -right-1" onClick={handleOnMoveRight}>
           <ArrowRight />
         </button>
       )}
