@@ -2,68 +2,11 @@ import next from "next";
 import { createServer } from "http";
 import { parse } from "url";
 import { Server } from "socket.io";
-// @ts-ignore
-import { calculateBonuses } from "./src/lib/calculateBonuses.ts";
+import { calculateBonuses, initDeck } from "./src/lib/index.ts";
+import { NB_ROUNDS } from "./src/constants/index.ts";
 
 import type { Socket } from "socket.io";
 import type { Bonuses, Card, Player } from "./src/types";
-
-const ROUNDS = 8;
-
-const deckInfo = [
-  { char: "a", count: 10, points: 2 },
-  { char: "b", count: 2, points: 8 },
-  { char: "c", count: 2, points: 8 },
-  { char: "d", count: 4, points: 5 },
-  { char: "e", count: 12, points: 2 },
-  { char: "f", count: 2, points: 6 },
-  { char: "g", count: 4, points: 6 },
-  { char: "h", count: 2, points: 7 },
-  { char: "i", count: 8, points: 2 },
-  { char: "j", count: 2, points: 13 },
-  { char: "k", count: 2, points: 8 },
-  { char: "l", count: 4, points: 3 },
-  { char: "m", count: 2, points: 5 },
-  { char: "n", count: 6, points: 5 },
-  { char: "o", count: 8, points: 2 },
-  { char: "p", count: 2, points: 6 },
-  { char: "q", count: 2, points: 15 },
-  { char: "r", count: 6, points: 5 },
-  { char: "s", count: 4, points: 3 },
-  { char: "t", count: 6, points: 3 },
-  { char: "u", count: 6, points: 4 },
-  { char: "v", count: 2, points: 11 },
-  { char: "w", count: 2, points: 10 },
-  { char: "x", count: 2, points: 12 },
-  { char: "y", count: 4, points: 4 },
-  { char: "z", count: 2, points: 14 },
-  { char: "cl", count: 2, points: 10 },
-  { char: "er", count: 2, points: 7 },
-  { char: "in", count: 2, points: 7 },
-  { char: "qu", count: 2, points: 9 },
-  { char: "th", count: 2, points: 9 },
-];
-
-function shuffleArray<T>(array: T[]) {
-  for (let i = array.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]];
-  }
-}
-
-function initDeck() {
-  const deck: Card[] = [];
-
-  deckInfo.forEach((card) => {
-    for (let i = 0; i < card.count; i++) {
-      deck.push({ ...card, id: crypto.randomUUID() });
-    }
-  });
-
-  shuffleArray(deck);
-
-  return deck;
-}
 
 let deck: Card[] = [];
 let firstToFinish: string | undefined;
@@ -77,28 +20,33 @@ const players: Player[] = [];
 const app = next({ dev: process.env.NODE_ENV !== "production" });
 const handle = app.getRequestHandler();
 
+function distributeCard(deck: Card[], nbPlayers: number, round: number) {
+  const hands: Card[][] = [...Array(nbPlayers)].map(() => []);
+  const discardPile: Card[] = [];
+
+  for (let i = 0; i < round + 2; i++) {
+    for (let j = 0; j < nbPlayers; j++) {
+      hands[j].push(deck.pop()!);
+    }
+  }
+
+  discardPile.push(deck.pop()!);
+
+  return { deck, discardPile, hands };
+}
+
 app.prepare().then(() => {
-  const server = createServer((req, res) => {
-    // @ts-ignore
-    return handle(req, res, parse(req.url, true));
-  });
+  const server = createServer((req, res) => handle(req, res, parse(req.url || "", true)));
   const io = new Server(server);
   const startGame = () => {
-    const hands: Card[][] = players.map(() => []);
-    const discardPile: Card[] = [];
-    deck = initDeck();
-    round = 1;
-    firstToFinish = undefined;
-    readyToStartRoundCount = 0;
     readyToStartGameCount = 0;
 
-    for (let i = 0; i < round + 2; i++) {
-      for (let j = 0; j < players.length; j++) {
-        hands[j].push(deck.pop()!);
-      }
-    }
+    round++;
+    firstToFinish = undefined;
+    readyToStartRoundCount = 0;
 
-    discardPile.push(deck.pop()!);
+    const { deck: startDeck, discardPile, hands } = distributeCard(initDeck(), players.length, round);
+    deck = startDeck;
 
     players.forEach(({ id }, index) => {
       io.to(id).emit("start-game", {
@@ -120,9 +68,7 @@ app.prepare().then(() => {
       io.emit("player-entered", players);
     });
 
-    socket.on("start-game", () => {
-      startGame();
-    });
+    socket.on("start-game", () => startGame());
 
     socket.on("draw", (id) => {
       const card = deck.pop();
@@ -179,7 +125,7 @@ app.prepare().then(() => {
           }
         });
 
-        if (round === ROUNDS) {
+        if (round === NB_ROUNDS) {
           io.emit("end-game", { bonuses, players });
         } else {
           io.emit("end-round", { bonuses, players });
@@ -193,26 +139,17 @@ app.prepare().then(() => {
       readyToStartRoundCount++;
 
       if (readyToStartRoundCount === players.length) {
-        firstToFinish = undefined;
-        readyToStartRoundCount = 0;
-
         players.forEach((player) => {
           player.remainingCards = [];
           player.words = [];
         });
 
-        const hands: Card[][] = players.map(() => []);
-        const discardPile: Card[] = [];
-        deck = initDeck();
         round++;
+        firstToFinish = undefined;
+        readyToStartRoundCount = 0;
 
-        for (let i = 0; i < round + 2; i++) {
-          for (let j = 0; j < players.length; j++) {
-            hands[j].push(deck.pop()!);
-          }
-        }
-
-        discardPile.push(deck.pop()!);
+        const { deck: startDeck, discardPile, hands } = distributeCard(initDeck(), players.length, round);
+        deck = startDeck;
 
         players.forEach(({ id }, index) => {
           io.to(id).emit("start-round", {
@@ -240,9 +177,5 @@ app.prepare().then(() => {
     });
   });
 
-  // @ts-ignore
-  server.listen(3000, (err) => {
-    if (err) throw err;
-    console.log("> Ready on http://localhost:3000");
-  });
+  server.listen(3000);
 });

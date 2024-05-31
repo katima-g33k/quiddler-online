@@ -20,7 +20,6 @@ export type BonusOptions = {
 
 export type Card = {
   char: string;
-  count: number;
   id: string;
   points: number;
 };
