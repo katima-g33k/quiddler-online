@@ -8,13 +8,11 @@ const DiscardPile = () => {
 
   const handlePickFromDiscard = () => {
     if (canDraw) {
-      const card = discardPile[discardPile.length - 1];
-
       socket.emit("pick-from-discard");
 
       setHasDrawn(true);
-      setHand((hand = []) => [...hand, card]);
-      setDiscardPile(discardPile => discardPile.filter(c => c !== card));
+      setHand((hand = []) => [...hand, discardPile[discardPile.length - 1]]);
+      setDiscardPile(discardPile => discardPile.slice(0, discardPile.length - 1));
     }
   };
 
@@ -27,8 +25,7 @@ const DiscardPile = () => {
 
   useEffect(() => {
     const pickFromDiscard = () => {
-      const card = discardPile[discardPile.length - 1];
-      setDiscardPile(discardPile => discardPile.filter(c => c !== card));
+      setDiscardPile(discardPile => discardPile.slice(0, discardPile.length - 1));
     };
 
     socket.on("pick-from-discard", pickFromDiscard);
