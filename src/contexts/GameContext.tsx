@@ -11,7 +11,7 @@ import React, {
 import type { Socket } from "socket.io-client";
 import { v4 as uuid } from "uuid";
 import { socket } from "@/lib/socket";
-import type { Bonuses, Card, Player, Word } from "@/types";
+import type { Bonuses, Card, GameOptions, Player, Word } from "@/types";
 
 type GameContext = {
   bonuses?: Bonuses;
@@ -24,6 +24,7 @@ type GameContext = {
   deckSize: number;
   discarded?: Card;
   discardPile: Card[];
+  gameOptions: GameOptions;
   hand: Card[],
   hasDrawn: boolean;
   id: string;
@@ -36,6 +37,7 @@ type GameContext = {
   setDeckSize: Dispatch<SetStateAction<number>>;
   setDiscarded: Dispatch<SetStateAction<Card | undefined>>;
   setDiscardPile: Dispatch<SetStateAction<Card[]>>;
+  setGameOptions: Dispatch<SetStateAction<GameOptions>>;
   setHand: Dispatch<SetStateAction<Card[]>>;
   setHasDrawn: Dispatch<SetStateAction<boolean>>;
   setPlayedCards: Dispatch<SetStateAction<Card[][]>>;
@@ -44,6 +46,11 @@ type GameContext = {
   setSelectedCards: Dispatch<SetStateAction<Card[]>>;
   socket: Socket;
   words: Word[];
+};
+
+const defaultGameOptions = {
+  longestWordBonus: false,
+  mostWordsBonus: false,
 };
 
 const GameContext = createContext<GameContext>({
@@ -57,6 +64,7 @@ const GameContext = createContext<GameContext>({
   deckSize: 0,
   discarded: undefined,
   discardPile: [],
+  gameOptions: defaultGameOptions,
   hand: [],
   hasDrawn: false,
   id: "",
@@ -69,6 +77,7 @@ const GameContext = createContext<GameContext>({
   setDeckSize: () => undefined,
   setDiscarded: () => undefined,
   setDiscardPile: () => undefined,
+  setGameOptions: () => undefined,
   setHand: () => undefined,
   setHasDrawn: () => undefined,
   setPlayedCards: () => undefined,
@@ -83,6 +92,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
   const id = useMemo(() => uuid(), []);
   const [discarded, setDiscarded] = useState<Card>();
   const [players, setPlayers] = useState<Player[]>([]);
+  const [gameOptions, setGameOptions] = useState<GameOptions>(defaultGameOptions);
   const [hand, setHand] = useState<Card[]>([]);
   const [hasDrawn, setHasDrawn] = useState(false);
   const [round, setRound] = useState<number>(0);
@@ -130,6 +140,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
     deckSize,
     discarded,
     discardPile,
+    gameOptions,
     hand,
     hasDrawn,
     id,
@@ -142,6 +153,7 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
     setDeckSize,
     setDiscarded,
     setDiscardPile,
+    setGameOptions,
     setHand,
     setHasDrawn,
     setPlayedCards,

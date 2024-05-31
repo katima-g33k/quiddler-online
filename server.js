@@ -67,8 +67,10 @@ let firstToFinish;
 let round;
 let readyToStartRoundCount = 0;
 let readyToStartGameCount = 0;
-let useLongestWordBonus = true;
-let useMostWordsBonus = true;
+let gameOptions = {
+  longestWordBonus: false,
+  mostWordsBonus: true,
+};
 const players = [];
 
 const app = next({ dev: process.env.NODE_ENV !== "production" });
@@ -114,6 +116,11 @@ app.prepare().then(() => {
       io.emit("player-entered", players);
     });
 
+    socket.on("update-options", (options) => {
+      gameOptions = options;
+      socket.broadcast.emit("update-options", options);
+    });
+
     socket.on("start-game", () => {
       startGame();
     });
@@ -148,7 +155,7 @@ app.prepare().then(() => {
       const nextPlayer = players[nextPlayerIndex];
 
       if (nextPlayer.id === firstToFinish) {
-        const bonuses = calculateBonuses(players, { useLongestWordBonus, useMostWordsBonus });
+        const bonuses = calculateBonuses(players, gameOptions);
 
         players.forEach((player) => {
           player.score += player.words.reduce((pts, word) => pts + word.points, 0) - player.remainingCards.reduce((pts, card) => pts + card.points, 0);

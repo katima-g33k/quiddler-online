@@ -25,6 +25,11 @@ export type Card = {
   points: number;
 };
 
+export type GameOptions = {
+  longestWordBonus: boolean;
+  mostWordsBonus: boolean;
+};
+
 export type Word = {
   cards: Card[];
   points: number;

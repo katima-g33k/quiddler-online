@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import classNames from "classnames";
 import Button from "@/components/Button";
+import GameOptions from "@/components/GameOptions";
 import H2 from "@/components/H2";
 import { useGame } from "@/contexts/GameContext";
 import type { Card } from "@/types";
@@ -38,6 +39,7 @@ const WaitingRoom = ({ className }: WaitingRoomProps) => {
       <ol className="list-decimal">
         {players.map(({ id, name }) => <li className="capitalize" key={id}>{name}</li>)}
       </ol>
+      <GameOptions />
       <Button disabled={players.length < 2} label="Start game" onClick={handleStartGame} />
     </div>
   );

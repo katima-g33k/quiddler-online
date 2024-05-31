@@ -35,9 +35,9 @@ const calculateMostWordsBonus = (players) => players.reduce((mostWords, player) 
   return mostWords;
 }, []);
 
-const calculateBonuses = (players, { useLongestWordBonus, useMostWordsBonus }) => ({
-  longestWord: useLongestWordBonus ? calculateLongestWordBonus(players) : undefined,
-  mostWords: useMostWordsBonus ? calculateMostWordsBonus(players) : undefined,
+const calculateBonuses = (players, { longestWordBonus, mostWordsBonus }) => ({
+  longestWord: longestWordBonus ? calculateLongestWordBonus(players) : undefined,
+  mostWords: mostWordsBonus ? calculateMostWordsBonus(players) : undefined,
 });
 
 // eslint-disable-next-line no-undef
