@@ -12,6 +12,7 @@ import type { Socket } from "socket.io-client";
 import { v4 as uuid } from "uuid";
 import { socket } from "@/lib/socket";
 import type { Bonuses, Card, GameOptions, Player, Word } from "@/types";
+import { useAudio } from "@/hooks/useAudio";
 
 type GameContext = {
   bonuses?: Bonuses;
@@ -103,10 +104,14 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
   const [playedCards, setPlayedCards] = useState<Card[][]>([]);
   const [bonuses, setBonuses] = useState<Bonuses>();
 
+  const lastTurn = useAudio("./last-turn.mp3");
+  const yourTurn = useAudio("./your-turn.mp3");
+
+  const isCurrentPlayersTurn = id === currentPlayer;
   const isLastTurn = players.some(player => player.words.length);
   const thisPlayer = players.find(player => player.id === id);
   const canDiscard = !discarded && selectedCards.length === 1;
-  const canDraw = id === currentPlayer && !hasDrawn;
+  const canDraw = isCurrentPlayersTurn && !hasDrawn;
   const canPlay = hasDrawn;
   const canEndTurn = canPlay && !!discarded && (isLastTurn || hand.length === 0 || playedCards.length === 0);
 
@@ -120,6 +125,14 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
       };
     }, { cards: [] as Card[], points: 0, word: "" });
   });
+
+  const playTurnMusic = () => isLastTurn ? lastTurn.play() : yourTurn.play();
+
+  useEffect(() => {
+    if (isCurrentPlayersTurn) {
+      playTurnMusic().then();
+    }
+  }, [isCurrentPlayersTurn]);
 
   useEffect(() => {
     socket.connect();
