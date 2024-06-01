@@ -1,5 +1,11 @@
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 
 export const useAudio = (src: string) => {
-  return useMemo(() => new Audio(src), [src]);
+  const [audio, setAudio] = useState<HTMLAudioElement>();
+
+  useEffect(() => {
+    setAudio(new Audio(src));
+  }, [src]);
+
+  return audio;
 };
