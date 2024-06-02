@@ -206,10 +206,10 @@ app.prepare().then(() => {
 
         players.forEach(({ id }, index) => {
           io.to(id).emit("start-round", {
-            currentPlayer: players[0].id,
+            currentPlayer: players[(round - 1) % players.length].id,
             deckSize: deck.length,
             discardPile,
-            hand: hands[index],
+            hand: hands[(index + round - 1) % players.length],
             round,
             players,
           });
