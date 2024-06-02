@@ -1,4 +1,9 @@
+// TODO: Optimize function to not loop every player if bonus is null
 const calculateLongestWordBonus = (players) => players.reduce((longestWord, player) => {
+  if (longestWord === undefined) {
+    return longestWord;
+  }
+
   const playerLongestWord = player.words.toSorted((a, b) => b.word.length - a.word.length)[0];
   const playerWordLength = playerLongestWord?.word.length || 0;
   const currentLongestWordLength = longestWord[0]?.word.length || 0;
@@ -8,16 +13,18 @@ const calculateLongestWordBonus = (players) => players.reduce((longestWord, play
   }
 
   if (playerWordLength && playerWordLength === currentLongestWordLength) {
-    return [
-      ...longestWord,
-      { player, word: playerLongestWord.word },
-    ];
+    return undefined;
   }
 
   return longestWord;
 }, []);
 
+// TODO: Optimize function to not loop every player if bonus is null
 const calculateMostWordsBonus = (players) => players.reduce((mostWords, player) => {
+  if (mostWords === undefined) {
+    return mostWords;
+  }
+
   const playerWordCount = player.words.length;
   const currentMostWordsCount = mostWords[0]?.count || 0;
 
@@ -26,10 +33,7 @@ const calculateMostWordsBonus = (players) => players.reduce((mostWords, player) 
   }
 
   if (playerWordCount && playerWordCount === currentMostWordsCount) {
-    return [
-      ...mostWords,
-      { count: playerWordCount, player },
-    ];
+    return undefined;
   }
 
   return mostWords;
