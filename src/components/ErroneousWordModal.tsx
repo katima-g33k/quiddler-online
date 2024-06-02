@@ -11,7 +11,7 @@ const ErroneousWordModal = ({ onConfirm, word }: ErroneousWordModalProps) => {
   return (
     <Modal open={!!word}>
       <div className='flex flex-col items-center gap-4'>
-        <p>Sorry, <strong>{word}</strong> is not a word</p>
+        <p>Sorry, <strong className="uppercase">{word}</strong> is not a word</p>
         <Button label="Okay" onClick={onConfirm} />
       </div>
     </Modal>
