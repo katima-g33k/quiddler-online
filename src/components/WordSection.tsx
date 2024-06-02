@@ -1,6 +1,6 @@
 import React from "react";
 import H2 from "@/components/H2";
-import Word from "@/app/Word";
+import Word from "@/components/Word";
 import { Card, Word as TWord } from "@/types";
 
 type WordSectionProps = {
