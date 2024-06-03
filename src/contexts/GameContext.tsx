@@ -126,11 +126,11 @@ export const GameProvider = ({ children }: PropsWithChildren) => {
     }, { cards: [] as Card[], points: 0, word: "" });
   });
 
-  const playTurnMusic = () => isLastTurn ? lastTurn.play() : yourTurn.play();
+  const playTurnMusic = () => isLastTurn ? lastTurn?.play() : yourTurn?.play();
 
   useEffect(() => {
     if (isCurrentPlayersTurn) {
-      playTurnMusic().then();
+      playTurnMusic()?.then();
     }
   }, [isCurrentPlayersTurn]);
 
