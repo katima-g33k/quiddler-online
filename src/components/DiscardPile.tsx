@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Slash } from "react-feather";
+import { Undo } from "@mui/icons-material";
 import Card from "@/components/Card";
 import { useGame } from "@/contexts/GameContext";
 
@@ -40,10 +40,10 @@ const DiscardPile = () => {
       <Card card={discarded || discardPile[discardPile.length - 1]} disabled={!canDraw} onClick={handlePickFromDiscard} />
       {!!discarded && (
         <button
-          className="flex opacity-0 hover:opacity-70 rounded justify-center items-center absolute bg-red-400 top-0 bottom-0 left-0 right-0"
+          className="flex opacity-0 hover:opacity-80 rounded justify-center items-center absolute bg-red-300 top-0 bottom-0 left-0 right-0"
           onClick={handleUndoDiscard}
         >
-          <Slash className="text-red-900" size={64} />
+          <Undo className="text-red-900" fontSize="large" />
         </button>
       )}
     </div>

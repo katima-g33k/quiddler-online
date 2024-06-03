@@ -1,5 +1,5 @@
 import React from "react";
-import { Trash2 } from "react-feather";
+import { Delete } from "@mui/icons-material";
 import { useGame } from "@/contexts/GameContext";
 import type { Word as TWord } from "@/types";
 
@@ -22,7 +22,7 @@ const Word = ({ deletable, index, word }: WordProps) => {
       <span>{word.word} ({word.points} pts)</span>
       {deletable && canPlay && (
         <button onClick={handleRemoveWord}>
-          <Trash2 className="text-red-700" size={16} />
+          <Delete className="text-red-700" />
         </button>
       )}
     </li>

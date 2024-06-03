@@ -1,17 +1,17 @@
 import React, { MouseEvent } from "react";
+import { DragIndicator } from "@mui/icons-material";
 import Card from "@/components/Card";
+import { SortableListItem } from "@/components/Sortable";
 import { useGame } from "@/contexts/GameContext";
 import type { Card as TCard } from "@/types";
-import { Move } from "react-feather";
-import { SortableListItem } from "@/components/Sortable";
 
 type HeldCardProps = {
   card: TCard;
 }
 
 const Anchor = (props: any) => (
-  <button className="absolute z-10 top-0 right-0 p-2" {...props}>
-    <Move size={16}/>
+  <button className="absolute z-10 top-0 right-0 p-1" {...props}>
+    <DragIndicator />
   </button>
 );
 
