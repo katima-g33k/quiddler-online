@@ -1,22 +1,23 @@
-import React, { MouseEvent, useState } from "react";
-import { ArrowLeft, ArrowRight } from "react-feather";
+import React, { MouseEvent } from "react";
 import Card from "@/components/Card";
 import { useGame } from "@/contexts/GameContext";
 import type { Card as TCard } from "@/types";
+import { Move } from "react-feather";
+import { SortableListItem } from "@/components/Sortable";
 
 type HeldCardProps = {
   card: TCard;
-  onMoveLeft: (card: Card) => void;
-  onMoveRight: (card: Card) => void;
 }
 
-const HeldCard = ({ card, onMoveLeft, onMoveRight }: HeldCardProps) => {
-  const [hover, setHover] = useState(false);
-  const { canPlay, hand, selectedCards, setSelectedCards } = useGame();
+const Anchor = (props: any) => (
+  <button className="absolute z-10 top-0 right-0 p-2" {...props}>
+    <Move size={16}/>
+  </button>
+);
+
+const HeldCard = ({ card }: HeldCardProps) => {
+  const { canPlay, selectedCards, setSelectedCards } = useGame();
   const selectedIndex = selectedCards.findIndex(c => c.id === card.id) + 1 || undefined;
-  const index = hand.findIndex((c) => c.id === card.id);
-  const isFirst = index === 0;
-  const isLast = index === hand.length - 1;
 
   const handleSelectCard = (event: MouseEvent<HTMLInputElement>) => {
     // @ts-ignore
@@ -29,27 +30,8 @@ const HeldCard = ({ card, onMoveLeft, onMoveRight }: HeldCardProps) => {
     }
   };
 
-  const handleOnMoveLeft = () => {
-    onMoveLeft(card);
-    setHover(false);
-  };
-
-  const handleOnMoveRight = () => {
-    onMoveRight(card);
-    setHover(false);
-  };
-
   return (
-    <div
-      className="flex items-center relative"
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-    >
-      {hover && !isFirst && (
-        <button className="absolute z-10 -left-1" onClick={handleOnMoveLeft}>
-          <ArrowLeft />
-        </button>
-      )}
+    <SortableListItem anchor={Anchor} className="relative" id={card.id}>
       <Card
         card={card}
         disabled={!canPlay}
@@ -57,12 +39,7 @@ const HeldCard = ({ card, onMoveLeft, onMoveRight }: HeldCardProps) => {
         onClick={handleSelectCard}
         type="checkbox"
       />
-      {hover && !isLast && (
-        <button className="absolute z-10 -right-1" onClick={handleOnMoveRight}>
-          <ArrowRight />
-        </button>
-      )}
-    </div>
+    </SortableListItem>
   );
 };
 
