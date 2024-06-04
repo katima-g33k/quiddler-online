@@ -11,10 +11,13 @@ type WaitingRoomProps = {
 };
 
 const WaitingRoom = ({ className }: WaitingRoomProps) => {
-  const { players, setCurrentPlayer, setDeckSize, setDiscardPile, setHand, setRound, socket } = useGame();
+  const { gameOptions, players, setCurrentPlayer, setDeckSize, setDiscardPile, setHand, setRound, socket } = useGame();
+  const canStartGame = players.length > 1 && (gameOptions.longestWordBonus || gameOptions.mostWordsBonus);
 
   const handleStartGame = () => {
-    socket.emit("start-game");
+    if (canStartGame) {
+      socket.emit("start-game");
+    }
   };
 
   useEffect(() => {
@@ -40,7 +43,7 @@ const WaitingRoom = ({ className }: WaitingRoomProps) => {
         {players.map(({ id, name }) => <li className="capitalize" key={id}>{name}</li>)}
       </ol>
       <GameOptions />
-      <Button disabled={players.length < 2} label="Start game" onClick={handleStartGame} />
+      <Button disabled={!canStartGame} label="Start game" onClick={handleStartGame} />
     </div>
   );
 };

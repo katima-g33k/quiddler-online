@@ -69,7 +69,7 @@ let readyToStartRoundCount = 0;
 let readyToStartGameCount = 0;
 let gameOptions = {
   longestWordBonus: false,
-  mostWordsBonus: true,
+  mostWordsBonus: false,
 };
 const players = [];
 
@@ -114,11 +114,24 @@ app.prepare().then(() => {
       players.push({ ...player, remainingCards: [], score: 0, words: [] });
       socket.join(player.id);
       io.emit("player-entered", players);
+
+      if (players.length > 2) {
+        gameOptions = {
+          ...gameOptions,
+          longestWordBonus: true,
+          mostWordsBonus: true,
+        };
+        io.emit("update-options", gameOptions);
+      }
     });
 
     socket.on("update-options", (options) => {
-      gameOptions = options;
-      socket.broadcast.emit("update-options", options);
+      gameOptions = players.length < 3 ? options : {
+        ...options,
+        longestWordBonus: true,
+        mostWordsBonus: true,
+      };
+      socket.broadcast.emit("update-options", gameOptions);
     });
 
     socket.on("start-game", () => {

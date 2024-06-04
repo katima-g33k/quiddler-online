@@ -4,7 +4,7 @@ import { useGame } from "@/contexts/GameContext";
 import type { GameOptions as TGameOptions } from "@/types";
 
 const GameOptions = () => {
-  const { gameOptions, setGameOptions, socket } = useGame();
+  const { gameOptions, players, setGameOptions, socket } = useGame();
 
   const handleOnOptionsChange = (gameOptions: TGameOptions) => {
     socket.emit("update-options", gameOptions);
@@ -39,8 +39,18 @@ const GameOptions = () => {
 
   return (
     <form className="flex flex-col">
-      <Checkbox checked={gameOptions.longestWordBonus} label="Activate longest word bonus" onChange={handleOnLongestWordBonusChange} />
-      <Checkbox checked={gameOptions.mostWordsBonus} label="Activate most words bonus" onChange={handleOnMostWordsBonusChange} />
+      <Checkbox
+        checked={gameOptions.longestWordBonus}
+        disabled={gameOptions.mostWordsBonus || players.length > 2}
+        label="Activate longest word bonus"
+        onChange={handleOnLongestWordBonusChange}
+      />
+      <Checkbox
+        checked={gameOptions.mostWordsBonus}
+        disabled={gameOptions.longestWordBonus || players.length > 2}
+        label="Activate most words bonus"
+        onChange={handleOnMostWordsBonusChange}
+      />
     </form>
   );
 };
