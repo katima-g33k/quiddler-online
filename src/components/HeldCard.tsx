@@ -10,7 +10,7 @@ type HeldCardProps = {
 }
 
 const Anchor = (props: any) => (
-  <button className="absolute z-10 top-0 right-0 p-1" {...props}>
+  <button className="absolute z-10 top-0 right-0 p-1 cursor-grab" {...props}>
     <DragIndicator />
   </button>
 );
