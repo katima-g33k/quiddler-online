@@ -15,8 +15,8 @@ export const WordSection = ({ deletable, name, remainingCards, score, words }: W
   const remainingCardsStr = remainingCards.map(({ char, points }) => `${char} (${points})`).join(", ");
 
   return (
-    <div>
-      <H2 className="capitalize">{name} ({score} pts)</H2>
+    <div className="flex flex-col p-2 gap-2 flex-1 min-h-48 overflow-y-auto">
+      <H2 className="capitalize font-semibold">{name} ({score} pts)</H2>
       <ul className="flex flex-col gap-1">
         {words.map((word, index) => (
           <Word key={`${word.word}${index}`} deletable={deletable} index={index} word={word}/>

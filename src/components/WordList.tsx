@@ -8,7 +8,7 @@ const WordList = () => {
   const otherPlayers = players.filter(player => player.id !== id);
 
   return (
-    <div>
+    <div className="flex flex-col">
       <WordSection deletable name="Your words" remainingCards={you?.remainingCards || []} score={you?.score || 0} words={words} />
       {otherPlayers.map(({ id, name, remainingCards, score, words }) => (
         <WordSection key={id} name={name} remainingCards={remainingCards} score={score} words={words} />

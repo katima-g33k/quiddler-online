@@ -18,11 +18,11 @@ const Word = ({ deletable, index, word }: WordProps) => {
   };
 
   return (
-    <li className="flex items-center uppercase bg-gray-400 justify-between p-2 rounded-md">
+    <li className="flex items-center uppercase bg-gray-100 justify-between p-2 rounded-md">
       <span>{word.word} ({word.points} pts)</span>
       {deletable && canPlay && (
         <button onClick={handleRemoveWord}>
-          <Delete className="text-red-700" />
+          <Delete className="text-red-500" />
         </button>
       )}
     </li>
