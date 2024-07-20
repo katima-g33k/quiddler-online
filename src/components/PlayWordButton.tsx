@@ -10,24 +10,37 @@ const PlayWordButton = () => {
   const { selectedCards, setHand, setPlayedCards, setSelectedCards } = useGame();
   const canPlayWord = selectedCards.length > 1;
 
-  const playWord = async () => {
+  const playWord = () => {
+    setHand(hand => hand.filter(card => !selectedCards.includes(card)));
+    setPlayedCards(playedCards => [...playedCards, selectedCards]);
+    setSelectedCards([]);
+  };
+
+  const validateWord = async () => {
     const word = selectedCards.reduce((acc, card) => `${acc}${card.char}`, "");
 
     if (await searchDictionary(word)) {
-      setHand(hand => hand.filter(card => !selectedCards.includes(card)));
-      setPlayedCards(playedCards => [...playedCards, selectedCards]);
-      setSelectedCards([]);
+      playWord();
     } else {
       setErroneousWord(word);
     }
   };
 
-  const handlePlayWord = () => canPlayWord && playWord();
+  const handleOnAdd = () => {
+    setErroneousWord(undefined);
+    playWord();
+  };
+
+  const handlePlayWord = () => canPlayWord && validateWord();
 
   return (
     <>
       <Button disabled={!canPlayWord} label="Play word" onClick={handlePlayWord} />
-      <ErroneousWordModal onConfirm={() => setErroneousWord(undefined)} word={erroneousWord} />
+      <ErroneousWordModal
+        onAdd={handleOnAdd}
+        onConfirm={() => setErroneousWord(undefined)}
+        word={erroneousWord}
+      />
     </>
   );
 };
