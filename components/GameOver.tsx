@@ -2,16 +2,11 @@
 
 import { api } from "@/lib/client";
 import type { PublicState } from "@/lib/types";
-import {
-	Button,
-	cx,
-	gridTable,
-	heading,
-	numCell,
-	panel,
-	row,
-	stack,
-} from "./ui";
+import { Button, ButtonVariant } from "./Button";
+import { Panel } from "./Panel";
+import { Table } from "./Table";
+import { H2 } from "./Typography";
+import { numCell, row, stack } from "./ui";
 
 interface Props {
 	state: PublicState;
@@ -28,13 +23,13 @@ export default function GameOver({ state, token, busy, action }: Props) {
 
 	return (
 		<div className={stack}>
-			<div className={cx(panel, stack)}>
-				<h2 className={heading}>
+			<Panel className={stack}>
+				<H2>
 					{winners.length === 1
 						? `${winners[0].name} wins with ${winners[0].totalScore} points`
 						: `Tied at ${winners[0]?.totalScore ?? 0}: ${winners.map((w) => w.name).join(", ")}`}
-				</h2>
-				<table className={gridTable}>
+				</H2>
+				<Table>
 					<thead>
 						<tr>
 							<th className={numCell}>#</th>
@@ -66,32 +61,32 @@ export default function GameOver({ state, token, busy, action }: Props) {
 							</tr>
 						))}
 					</tbody>
-				</table>
+				</Table>
 				<div className={row}>
 					<Button
-						variant="primary"
+						variant={ButtonVariant.Primary}
 						disabled={busy}
-						onClick={() =>
+						onClick={() => {
 							action(() =>
 								api.post("/api/game/reset", { keepPlayers: true }, token),
-							)
-						}
+							);
+						}}
 					>
 						Rematch (same players)
 					</Button>
 					<Button
-						variant="ghost"
+						variant={ButtonVariant.Ghost}
 						disabled={busy}
-						onClick={() =>
+						onClick={() => {
 							action(() =>
 								api.post("/api/game/reset", { keepPlayers: false }, token),
-							)
-						}
+							);
+						}}
 					>
 						Clear the table
 					</Button>
 				</div>
-			</div>
+			</Panel>
 		</div>
 	);
 }

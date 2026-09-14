@@ -3,21 +3,13 @@
 import { useState } from "react";
 import { api } from "@/lib/client";
 import type { PublicState } from "@/lib/types";
+import { Button, ButtonSize, ButtonVariant } from "./Button";
+import { Notice, NoticeTone } from "./Notice";
+import { Panel } from "./Panel";
+import { PlayerInformation } from "./PlayerInformation";
 import RulesPanel from "./RulesPanel";
-import {
-	Badge,
-	Button,
-	columns,
-	cx,
-	Dot,
-	Notice,
-	panel,
-	playerRow,
-	row,
-	sectionTitle,
-	stack,
-	textInput,
-} from "./ui";
+import { H2, H3 } from "./Typography";
+import { columns, cx, row, stack } from "./ui";
 
 interface Props {
 	state: PublicState;
@@ -73,9 +65,9 @@ export default function Lobby({
 	return (
 		<div className={columns}>
 			<div className={stack}>
-				<div className={cx(panel, stack)}>
+				<Panel className={stack}>
 					<div>
-						<h2 className="text-lg font-semibold tracking-tight">Lobby</h2>
+						<H2>Lobby</H2>
 						<p className="mt-1 text-sm text-stone-400">
 							One table, 2 to 8 players. Everyone shares this link and picks a
 							username.
@@ -87,7 +79,7 @@ export default function Lobby({
 							<div className="flex-[1_1_200px]">
 								<input
 									type="text"
-									className={textInput}
+									className="w-full rounded-lg border border-green-800 bg-green-950 px-3 py-2 text-green-50 focus:outline-2 focus:outline-offset-1 focus:outline-yellow-700"
 									value={name}
 									maxLength={20}
 									placeholder="Your username"
@@ -97,7 +89,7 @@ export default function Lobby({
 							</div>
 							<Button
 								type="submit"
-								variant="primary"
+								variant={ButtonVariant.Primary}
 								disabled={joining || !name.trim()}
 							>
 								{joining ? "Joining…" : "Join game"}
@@ -106,7 +98,7 @@ export default function Lobby({
 					)}
 
 					{you && (
-						<Notice tone="info">
+						<Notice tone={NoticeTone.Info}>
 							You are in as <strong>{you.name}</strong>
 							{you.isHost
 								? " and you are the host."
@@ -115,30 +107,19 @@ export default function Lobby({
 					)}
 
 					<div>
-						<h3 className={sectionTitle}>
-							At the table ({state.players.length}/8)
-						</h3>
+						<H3>At the table ({state.players.length}/8)</H3>
 						<div className="mt-1.5">
 							{state.players.length === 0 && (
 								<div className="text-sm text-stone-400">Nobody yet.</div>
 							)}
-							{state.players.map((p) => (
-								<div key={p.id} className={playerRow}>
-									<Dot on={p.online} />
-									<span className="min-w-0 flex-1 truncate">
-										{p.name}
-										{p.isYou && (
-											<span className="text-xs text-stone-400"> (you)</span>
-										)}
-									</span>
-									{p.isHost && <Badge>host</Badge>}
-								</div>
+							{state.players.map((player) => (
+								<PlayerInformation key={player.id} player={player} />
 							))}
 						</div>
 					</div>
 
 					<div>
-						<h3 className={sectionTitle}>Round bonuses</h3>
+						<H3>Round bonuses</H3>
 						{state.bonusesLocked ? (
 							<p className="mt-1.5 text-sm text-stone-400">
 								With 3 or more players both bonuses are always awarded (10
@@ -200,20 +181,22 @@ export default function Lobby({
 					{you && (
 						<div className={cx(row, "justify-between")}>
 							<Button
-								variant="ghost"
-								small
+								variant={ButtonVariant.Ghost}
+								size={ButtonSize.sm}
 								disabled={busy}
-								onClick={() => action(() => api.del("/api/players", token))}
+								onClick={() => {
+									action(() => api.del("/api/players", token));
+								}}
 							>
 								Leave table
 							</Button>
 							{you.isHost && (
 								<Button
-									variant="primary"
+									variant={ButtonVariant.Primary}
 									disabled={!canStart || busy}
-									onClick={() =>
-										action(() => api.post("/api/game/start", {}, token))
-									}
+									onClick={() => {
+										action(() => api.post("/api/game/start", {}, token));
+									}}
 								>
 									{canStart
 										? "Deal round 1"
@@ -224,23 +207,21 @@ export default function Lobby({
 							)}
 						</div>
 					)}
-				</div>
+				</Panel>
 
-				<div className={panel}>
-					<RulesPanel />
-				</div>
+				<RulesPanel />
 			</div>
 
 			<div className={stack}>
-				<div className={panel}>
-					<h3 className={sectionTitle}>The deck</h3>
+				<Panel>
+					<H3>The deck</H3>
 					<p className="mt-2 text-sm text-stone-400">
 						118 cards. Vowels are cheap (A, E, I, O = 2), the awkward letters
 						pay (Q = 15, Z = 14, J = 13). Five cards carry two letters — QU (9),
 						TH (9), CL (10), ER (7), IN (7) — and count as one card but two
 						letters.
 					</p>
-				</div>
+				</Panel>
 			</div>
 		</div>
 	);

@@ -3,19 +3,14 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ApiError, api } from "@/lib/client";
 import type { Card, PublicSelf, PublicState } from "@/lib/types";
+import { Badge, BadgeTone } from "./Badge";
+import { Button, ButtonSize, ButtonVariant } from "./Button";
+import { CardRow } from "./CardRow";
 import CardTile from "./CardTile";
-import {
-	Badge,
-	Button,
-	cardsRow,
-	cx,
-	heading,
-	Notice,
-	panel,
-	row,
-	sectionTitle,
-	stack,
-} from "./ui";
+import { Notice, NoticeTone } from "./Notice";
+import { Panel } from "./Panel";
+import { H2, H3 } from "./Typography";
+import { cx, row, stack } from "./ui";
 
 interface WordCheck {
 	word: string;
@@ -236,15 +231,6 @@ export default function PlayArea({
 		return slot.side === "before" ? ids[i] : (ids[i + 1] ?? null);
 	}
 
-	/** Keyboard equivalent of dragging: shift a card one slot left or right. */
-	function nudgeInHand(cardId: string, delta: -1 | 1) {
-		const ids = handCards.map((c) => c.id);
-		const from = ids.indexOf(cardId);
-		const to = from + delta;
-		if (from < 0 || to < 0 || to >= ids.length) return;
-		placeInHand(cardId, delta < 0 ? ids[to] : (ids[to + 1] ?? null));
-	}
-
 	function dropInHand(e: React.DragEvent, anchorId: string | null) {
 		e.preventDefault();
 		e.stopPropagation();
@@ -425,15 +411,15 @@ export default function PlayArea({
 	return (
 		<div className={stack}>
 			{/* ------------------------------ status ------------------------------ */}
-			<div className={cx(panel, row, "justify-between")}>
+			<Panel className={cx(row, "justify-between")}>
 				<div>
-					<h2 className={heading}>
+					<H2>
 						Round {state.round} of {state.totalRounds}
 						<span className="text-sm text-stone-400">
 							{" "}
 							· {state.handSize}-card hands
 						</span>
-					</h2>
+					</H2>
 					<div className="text-sm text-stone-400">
 						{you.finishedRound
 							? "You are done for this round."
@@ -448,16 +434,16 @@ export default function PlayArea({
 				</div>
 				<div className={cx(row, "gap-1.5")}>
 					{state.settings.bonusLongestWord && (
-						<Badge tone="gold">longest word +10</Badge>
+						<Badge tone={BadgeTone.Warning}>longest word +10</Badge>
 					)}
 					{state.settings.bonusMostWords && (
-						<Badge tone="gold">most words +10</Badge>
+						<Badge tone={BadgeTone.Warning}>most words +10</Badge>
 					)}
 				</div>
-			</div>
+			</Panel>
 
 			{state.wentOutPlayerId && (
-				<Notice tone="info">
+				<Notice tone={NoticeTone.Info}>
 					{state.players.find((p) => p.id === state.wentOutPlayerId)?.name} went
 					out. Everyone else gets one last turn: draw, lay down what you can,
 					then discard one card. Unused cards are subtracted.
@@ -465,7 +451,7 @@ export default function PlayArea({
 			)}
 
 			{/* ------------------------------- piles ----------------------------- */}
-			<div className={panel}>
+			<Panel>
 				<div className="flex items-start justify-center gap-6 pt-2 pb-4">
 					<div className="flex flex-col items-center gap-1.5" data-pile="deck">
 						<span className="text-xs uppercase tracking-wider text-stone-400">
@@ -500,7 +486,7 @@ export default function PlayArea({
 							}
 						>
 							{state.discardTop ? (
-								<CardTile card={state.discardTop} />
+								<CardTile asImg card={state.discardTop} />
 							) : (
 								<div className="flex h-18.5 w-13.5 items-center justify-center rounded-lg border border-dashed border-green-800 text-center text-xs text-stone-400">
 									empty
@@ -513,19 +499,19 @@ export default function PlayArea({
 				{/* -------------------------- word builder ------------------------- */}
 				<div className="flex flex-col gap-2.5">
 					<div className={cx(row, "justify-between")}>
-						<h3 className={sectionTitle}>Words</h3>
+						<H3>Words</H3>
 						<div className={cx(row, "gap-1.5")}>
 							<Button
-								variant="ghost"
-								small
+								variant={ButtonVariant.Ghost}
+								size={ButtonSize.sm}
 								onClick={addWordRow}
 								disabled={!canAct}
 							>
 								+ Another word
 							</Button>
 							<Button
-								variant="ghost"
-								small
+								variant={ButtonVariant.Ghost}
+								size={ButtonSize.sm}
 								onClick={clearStaging}
 								disabled={placed.size === 0}
 							>
@@ -563,13 +549,15 @@ export default function PlayArea({
 										)}
 										{entry.ids.length > 0 && <Badge>{entry.points} pts</Badge>}
 										{tooShort && (
-											<Badge tone="bad">needs {MIN_WORD_LENGTH}+ letters</Badge>
+											<Badge tone={BadgeTone.Error}>
+												needs {MIN_WORD_LENGTH}+ letters
+											</Badge>
 										)}
 										{check?.verdict === "valid" && (
-											<Badge tone="ok">✓ word</Badge>
+											<Badge tone={BadgeTone.Success}>✓ word</Badge>
 										)}
 										{check && check.verdict !== "valid" && (
-											<Badge tone="bad">
+											<Badge tone={BadgeTone.Error}>
 												{check.verdict === "unavailable"
 													? "dictionary offline"
 													: "not a word"}
@@ -582,8 +570,8 @@ export default function PlayArea({
 									<div className={cx(row, "gap-1")}>
 										{check && check.verdict !== "valid" && (
 											<Button
-												variant="ghost"
-												small
+												variant={ButtonVariant.Ghost}
+												size={ButtonSize.sm}
 												onClick={(e) => {
 													e.stopPropagation();
 													void addToDictionary(entry.word);
@@ -595,8 +583,8 @@ export default function PlayArea({
 										)}
 										{wordEntries.length > 1 && (
 											<Button
-												variant="ghost"
-												small
+												variant={ButtonVariant.Ghost}
+												size={ButtonSize.sm}
 												onClick={(e) => {
 													e.stopPropagation();
 													removeWordRow(index);
@@ -608,13 +596,10 @@ export default function PlayArea({
 										)}
 									</div>
 								</div>
-								<div className={cardsRow}>
-									{entry.cards.length === 0 && (
-										<span className="text-xs text-stone-400">
-											Click a card in your hand, or drag it here.
-										</span>
-									)}
-									{entry.cards.map((card) => (
+								<CardRow
+									cards={entry.cards}
+									emptyTitle="Click a card in your hand, or drag it here."
+									renderCard={(card) => (
 										<CardTile
 											key={card.id}
 											card={card}
@@ -623,8 +608,8 @@ export default function PlayArea({
 											title="Return to hand"
 											{...cardDragProps(card.id)}
 										/>
-									))}
-								</div>
+									)}
+								/>
 							</div>
 						);
 					})}
@@ -647,7 +632,14 @@ export default function PlayArea({
 								{isFinalTurn && <Badge>still required on a last turn</Badge>}
 							</span>
 						</div>
-						<div className={cx(cardsRow, "min-h-14")}>
+						{/* TODO: Convert to CardRow component */}
+						<div
+							className={cx(
+								// CardRow
+								"flex min-h-18.5 flex-wrap items-center gap-1.5",
+								"min-h-14",
+							)}
+						>
 							{discardCard ? (
 								<CardTile
 									card={discardCard}
@@ -664,38 +656,35 @@ export default function PlayArea({
 						</div>
 					</div>
 				</div>
-			</div>
+			</Panel>
 
 			{/* -------------------------------- hand ----------------------------- */}
-			<div className={panel}>
+			<Panel>
 				<div className={cx(row, "justify-between")}>
-					<h3 className={sectionTitle}>
+					<H3>
 						Your hand · {you.hand.length} card{you.hand.length === 1 ? "" : "s"}
-					</h3>
+					</H3>
 					<span className="text-xs text-stone-400">
 						{active.kind === "discard"
 							? "Clicking a card sets it as your discard"
 							: `Clicking a card adds it to word ${active.index + 1}`}
-						{" · drag a card onto another to re-order (or Alt + ← / →)"}
+						{" · drag a card onto another to re-order"}
 					</span>
 				</div>
-				<div
+				<CardRow
 					data-zone="hand"
+					cards={handCards}
 					className={cx(
-						cardsRow,
 						"mt-2",
 						dragOver === "hand" &&
 							"rounded-lg outline-1 outline-offset-4 outline-dashed outline-amber-400",
 					)}
-					{...handZoneProps()}
-				>
-					{handCards.length === 0 && (
-						<span className="text-xs text-stone-400">
-							{you.hand.length === 0 ? "No cards." : "Every card is staged."}
-						</span>
-					)}
-					{handCards.map((card) => {
+					emptyTitle={
+						you.hand.length === 0 ? "No cards." : "Every card is staged."
+					}
+					renderCard={(card) => {
 						const marker = dropSlot?.id === card.id && dragging !== card.id;
+
 						return (
 							<div
 								key={card.id}
@@ -709,24 +698,18 @@ export default function PlayArea({
 								<CardTile
 									card={card}
 									onClick={() => moveToZone(card.id, active)}
-									onKeyDown={(e) => {
-										if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
-										if (!e.altKey) return;
-										e.preventDefault();
-										nudgeInHand(card.id, e.key === "ArrowLeft" ? -1 : 1);
-									}}
 									{...cardDragProps(card.id)}
 								/>
 							</div>
 						);
-					})}
-				</div>
+					}}
+				/>
 
 				<div className={cx(row, "mt-3.5")}>
 					{!isFinalTurn && (
 						<>
 							<Button
-								variant="primary"
+								variant={ButtonVariant.Primary}
 								disabled={!goOutReady || busy}
 								onClick={() => void playWords()}
 								title="Lay down your whole hand and end the round"
@@ -743,7 +726,7 @@ export default function PlayArea({
 					)}
 					{isFinalTurn && (
 						<Button
-							variant="primary"
+							variant={ButtonVariant.Primary}
 							disabled={!finishReady || busy}
 							onClick={() => void playWords()}
 						>
@@ -771,12 +754,12 @@ export default function PlayArea({
 						</span>
 					)}
 				</div>
-			</div>
+			</Panel>
 
 			{/* --------------------------- laid down ----------------------------- */}
 			{state.players.some((p) => p.laid.length > 0) && (
-				<div className={cx(panel, "flex flex-col gap-2.5")}>
-					<h3 className={sectionTitle}>Laid down this round</h3>
+				<Panel className="flex flex-col gap-2.5">
+					<H3>Laid down this round</H3>
 					{state.players
 						.filter((p) => p.laid.length > 0)
 						.map((p) => (
@@ -800,7 +783,7 @@ export default function PlayArea({
 								</div>
 							</div>
 						))}
-				</div>
+				</Panel>
 			)}
 		</div>
 	);

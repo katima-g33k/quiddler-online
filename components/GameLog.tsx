@@ -1,10 +1,11 @@
 import type { LogEntry } from "@/lib/types";
-import { panel, sectionTitle } from "./ui";
+import { Panel } from "./Panel";
+import { H3 } from "./Typography";
 
 export default function GameLog({ log }: { log: LogEntry[] }) {
 	return (
-		<div className={panel}>
-			<h3 className={sectionTitle}>Table talk</h3>
+		<Panel>
+			<H3>Table talk</H3>
 			<div className="mt-2 flex max-h-64 flex-col-reverse gap-1 overflow-y-auto text-sm text-stone-400">
 				{log.length === 0 && <div>Nothing has happened yet.</div>}
 				{[...log].map((entry) => (
@@ -13,6 +14,6 @@ export default function GameLog({ log }: { log: LogEntry[] }) {
 					</div>
 				))}
 			</div>
-		</div>
+		</Panel>
 	);
 }

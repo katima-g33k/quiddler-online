@@ -2,17 +2,12 @@
 
 import { api } from "@/lib/client";
 import type { PublicState } from "@/lib/types";
-import {
-	Badge,
-	Button,
-	cx,
-	gridTable,
-	heading,
-	numCell,
-	panel,
-	row,
-	stack,
-} from "./ui";
+import { Badge, BadgeTone } from "./Badge";
+import { Button, ButtonVariant } from "./Button";
+import { Panel } from "./Panel";
+import { Table } from "./Table";
+import { H2 } from "./Typography";
+import { cx, numCell, row, stack } from "./ui";
 
 interface Props {
 	state: PublicState;
@@ -39,17 +34,17 @@ export default function RoundSummary({ state, token, busy, action }: Props) {
 	const { bonusLongestWord, bonusMostWords } = state.settings;
 
 	return (
-		<div className={cx(panel, stack)}>
+		<Panel className={stack}>
 			<div className={cx(row, "justify-between")}>
-				<h2 className={heading}>
+				<H2>
 					Round {round.round} results{" "}
 					<span className="text-sm text-stone-400">
 						({round.handSize}-card hands)
 					</span>
-				</h2>
+				</H2>
 				{state.you?.isHost && (
 					<Button
-						variant="primary"
+						variant={ButtonVariant.Primary}
 						disabled={busy}
 						onClick={() =>
 							action(() => api.post("/api/game/next-round", {}, token))
@@ -60,7 +55,7 @@ export default function RoundSummary({ state, token, busy, action }: Props) {
 				)}
 			</div>
 
-			<table className={gridTable}>
+			<Table>
 				<thead>
 					<tr>
 						<th>Player</th>
@@ -86,7 +81,7 @@ export default function RoundSummary({ state, token, busy, action }: Props) {
 								<td>
 									{r.name}
 									{r.wentOut && (
-										<Badge tone="gold" className="ml-1.5">
+										<Badge tone={BadgeTone.Warning} className="ml-1.5">
 											out
 										</Badge>
 									)}
@@ -138,13 +133,13 @@ export default function RoundSummary({ state, token, busy, action }: Props) {
 							</tr>
 						))}
 				</tbody>
-			</table>
+			</Table>
 
 			{!state.you?.isHost && (
 				<p className="m-0 text-sm text-stone-400">
 					Waiting for the host to deal the next round.
 				</p>
 			)}
-		</div>
+		</Panel>
 	);
 }

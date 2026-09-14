@@ -1,23 +1,19 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { Button, ButtonSize, ButtonVariant } from "@/components/Button";
 import GameLog from "@/components/GameLog";
 import GameOver from "@/components/GameOver";
 import Lobby from "@/components/Lobby";
+import { Notice, NoticeTone } from "@/components/Notice";
+import { Panel } from "@/components/Panel";
 import PlayArea from "@/components/PlayArea";
 import RoundSummary from "@/components/RoundSummary";
 import RulesPanel from "@/components/RulesPanel";
 import Scoreboard from "@/components/Scoreboard";
-import {
-	Button,
-	columns,
-	cx,
-	Dot,
-	Notice,
-	panel,
-	row,
-	stack,
-} from "@/components/ui";
+import { StatusDot } from "@/components/StatusDot";
+import { H2 } from "@/components/Typography";
+import { columns, cx, row, stack } from "@/components/ui";
 import { ApiError, useGame } from "@/lib/client";
 import type { PublicState } from "@/lib/types";
 
@@ -72,17 +68,21 @@ export default function Page() {
 						</span>
 					)}
 					<span className="inline-flex items-center gap-1.5 text-xs text-stone-400">
-						<Dot on={connected} />
+						<StatusDot online={connected} />
 						{connected ? "live" : "reconnecting…"}
 					</span>
 				</div>
 			</header>
 
 			{error && (
-				<Notice tone="error" className="mb-4">
+				<Notice tone={NoticeTone.Error} className="mb-4">
 					<div className={cx(row, "justify-between")}>
 						<span>{error}</span>
-						<Button variant="ghost" small onClick={() => setError(null)}>
+						<Button
+							variant={ButtonVariant.Ghost}
+							size={ButtonSize.sm}
+							onClick={() => setError(null)}
+						>
 							dismiss
 						</Button>
 					</div>
@@ -114,7 +114,7 @@ export default function Page() {
 				<div className={columns}>
 					<div className={stack}>
 						{spectating && (
-							<Notice tone="info">
+							<Notice tone={NoticeTone.Info}>
 								A game is in progress. You can watch, and join the next one from
 								the lobby.
 							</Notice>
@@ -136,24 +136,22 @@ export default function Page() {
 								setError={setError}
 							/>
 						) : (
-							<div className={panel}>
-								<h2 className="text-lg font-semibold tracking-tight">
+							<Panel>
+								<H2>
 									Round {state.round} of {state.totalRounds}
-								</h2>
+								</H2>
 								<p className="text-sm text-stone-400">
 									{state.players.find((p) => p.id === state.turnPlayerId)
 										?.name ?? "Someone"}{" "}
 									is thinking…
 								</p>
-							</div>
+							</Panel>
 						)}
 					</div>
 					<div className={stack}>
 						<Scoreboard state={state} />
 						<GameLog log={state.log} />
-						<div className={panel}>
-							<RulesPanel />
-						</div>
+						<RulesPanel />
 					</div>
 				</div>
 			)}
