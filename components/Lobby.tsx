@@ -4,12 +4,12 @@ import { useState } from "react";
 import { api } from "@/lib/client";
 import type { PublicState } from "@/lib/types";
 import { Button, ButtonSize, ButtonVariant } from "./Button";
+import { Grid, Panel, Row, Stack } from "./Layout";
 import { Notice, NoticeTone } from "./Notice";
-import { Panel } from "./Panel";
 import { PlayerInformation } from "./PlayerInformation";
 import RulesPanel from "./RulesPanel";
 import { H2, H3 } from "./Typography";
-import { columns, cx, row, stack } from "./ui";
+import { cx } from "./ui";
 
 interface Props {
 	state: PublicState;
@@ -63,9 +63,9 @@ export default function Lobby({
 	}
 
 	return (
-		<div className={columns}>
-			<div className={stack}>
-				<Panel className={stack}>
+		<Grid>
+			<Stack>
+				<Panel as={Stack}>
 					<div>
 						<H2>Lobby</H2>
 						<p className="mt-1 text-sm text-stone-400">
@@ -75,7 +75,7 @@ export default function Lobby({
 					</div>
 
 					{!you && (
-						<form onSubmit={join} className={row}>
+						<Row as={"form"} onSubmit={join}>
 							<div className="flex-[1_1_200px]">
 								<input
 									type="text"
@@ -94,7 +94,7 @@ export default function Lobby({
 							>
 								{joining ? "Joining…" : "Join game"}
 							</Button>
-						</form>
+						</Row>
 					)}
 
 					{you && (
@@ -179,7 +179,7 @@ export default function Lobby({
 					</div>
 
 					{you && (
-						<div className={cx(row, "justify-between")}>
+						<Row className="justify-between">
 							<Button
 								variant={ButtonVariant.Ghost}
 								size={ButtonSize.sm}
@@ -205,14 +205,14 @@ export default function Lobby({
 											: "Pick a bonus"}
 								</Button>
 							)}
-						</div>
+						</Row>
 					)}
 				</Panel>
 
 				<RulesPanel />
-			</div>
+			</Stack>
 
-			<div className={stack}>
+			<Stack>
 				<Panel>
 					<H3>The deck</H3>
 					<p className="mt-2 text-sm text-stone-400">
@@ -222,7 +222,7 @@ export default function Lobby({
 						letters.
 					</p>
 				</Panel>
-			</div>
-		</div>
+			</Stack>
+		</Grid>
 	);
 }

@@ -1,5 +1,5 @@
 import type { PublicState } from "@/lib/types";
-import { Panel } from "./Panel";
+import { Panel } from "./Layout";
 import { PlayerInformation } from "./PlayerInformation";
 import { H3 } from "./Typography";
 

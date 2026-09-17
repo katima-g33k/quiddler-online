@@ -3,10 +3,9 @@
 import { api } from "@/lib/client";
 import type { PublicState } from "@/lib/types";
 import { Button, ButtonVariant } from "./Button";
-import { Panel } from "./Panel";
-import { Table } from "./Table";
+import { Panel, Row, Stack } from "./Layout";
+import { NumericCell, Table } from "./Table";
 import { H2 } from "./Typography";
-import { numCell, row, stack } from "./ui";
 
 interface Props {
 	state: PublicState;
@@ -22,8 +21,8 @@ export default function GameOver({ state, token, busy, action }: Props) {
 	const winners = standings.filter((p) => state.winnerIds.includes(p.id));
 
 	return (
-		<div className={stack}>
-			<Panel className={stack}>
+		<Stack>
+			<Panel as={Stack}>
 				<H2>
 					{winners.length === 1
 						? `${winners[0].name} wins with ${winners[0].totalScore} points`
@@ -32,37 +31,37 @@ export default function GameOver({ state, token, busy, action }: Props) {
 				<Table>
 					<thead>
 						<tr>
-							<th className={numCell}>#</th>
+							<NumericCell isTitle>#</NumericCell>
 							<th>Player</th>
 							{state.roundResults.map((r) => (
-								<th key={r.round} className={numCell}>
+								<NumericCell isTitle key={r.round}>
 									R{r.round}
-								</th>
+								</NumericCell>
 							))}
-							<th className={numCell}>Total</th>
+							<NumericCell isTitle>Total</NumericCell>
 						</tr>
 					</thead>
 					<tbody>
 						{standings.map((p, i) => (
 							<tr key={p.id} className={p.isYou ? "bg-amber-400/5" : undefined}>
-								<td className={numCell}>{i + 1}</td>
+								<NumericCell>{i + 1}</NumericCell>
 								<td>{p.name}</td>
 								{state.roundResults.map((r) => {
 									const cell = r.results.find((x) => x.playerId === p.id);
 									return (
-										<td key={r.round} className={numCell}>
+										<NumericCell key={r.round}>
 											{cell ? cell.roundScore : "—"}
-										</td>
+										</NumericCell>
 									);
 								})}
-								<td className={numCell}>
+								<NumericCell>
 									<strong>{p.totalScore}</strong>
-								</td>
+								</NumericCell>
 							</tr>
 						))}
 					</tbody>
 				</Table>
-				<div className={row}>
+				<Row>
 					<Button
 						variant={ButtonVariant.Primary}
 						disabled={busy}
@@ -85,8 +84,8 @@ export default function GameOver({ state, token, busy, action }: Props) {
 					>
 						Clear the table
 					</Button>
-				</div>
+				</Row>
 			</Panel>
-		</div>
+		</Stack>
 	);
 }

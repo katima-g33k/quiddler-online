@@ -4,16 +4,15 @@ import { useCallback, useState } from "react";
 import { Button, ButtonSize, ButtonVariant } from "@/components/Button";
 import GameLog from "@/components/GameLog";
 import GameOver from "@/components/GameOver";
+import { Grid, Panel, Row, Stack } from "@/components/Layout";
 import Lobby from "@/components/Lobby";
 import { Notice, NoticeTone } from "@/components/Notice";
-import { Panel } from "@/components/Panel";
 import PlayArea from "@/components/PlayArea";
 import RoundSummary from "@/components/RoundSummary";
 import RulesPanel from "@/components/RulesPanel";
 import Scoreboard from "@/components/Scoreboard";
 import { StatusDot } from "@/components/StatusDot";
 import { H2 } from "@/components/Typography";
-import { columns, cx, row, stack } from "@/components/ui";
 import { ApiError, useGame } from "@/lib/client";
 import type { PublicState } from "@/lib/types";
 
@@ -61,7 +60,7 @@ export default function Page() {
 					<h1 className="text-2xl font-semibold tracking-tight">Quiddler</h1>
 					<span className="text-sm text-stone-400">the short word game</span>
 				</div>
-				<div className={cx(row, "gap-4")}>
+				<Row className="gap-4">
 					{state.phase !== "lobby" && (
 						<span className="text-sm text-stone-400">
 							Round {state.round}/{state.totalRounds}
@@ -71,12 +70,12 @@ export default function Page() {
 						<StatusDot online={connected} />
 						{connected ? "live" : "reconnecting…"}
 					</span>
-				</div>
+				</Row>
 			</header>
 
 			{error && (
 				<Notice tone={NoticeTone.Error} className="mb-4">
-					<div className={cx(row, "justify-between")}>
+					<Row className="justify-between">
 						<span>{error}</span>
 						<Button
 							variant={ButtonVariant.Ghost}
@@ -85,7 +84,7 @@ export default function Page() {
 						>
 							dismiss
 						</Button>
-					</div>
+					</Row>
 				</Notice>
 			)}
 
@@ -101,18 +100,18 @@ export default function Page() {
 			)}
 
 			{state.phase === "gameEnd" && (
-				<div className={columns}>
+				<Grid>
 					<GameOver state={state} token={token} busy={busy} action={action} />
-					<div className={stack}>
+					<Stack>
 						<Scoreboard state={state} />
 						<GameLog log={state.log} />
-					</div>
-				</div>
+					</Stack>
+				</Grid>
 			)}
 
 			{inGame && (
-				<div className={columns}>
-					<div className={stack}>
+				<Grid>
+					<Stack>
 						{spectating && (
 							<Notice tone={NoticeTone.Info}>
 								A game is in progress. You can watch, and join the next one from
@@ -147,13 +146,13 @@ export default function Page() {
 								</p>
 							</Panel>
 						)}
-					</div>
-					<div className={stack}>
+					</Stack>
+					<Stack>
 						<Scoreboard state={state} />
 						<GameLog log={state.log} />
 						<RulesPanel />
-					</div>
-				</div>
+					</Stack>
+				</Grid>
 			)}
 		</main>
 	);

@@ -1,5 +1,5 @@
 import type { LogEntry } from "@/lib/types";
-import { Panel } from "./Panel";
+import { Panel } from "./Layout";
 import { H3 } from "./Typography";
 
 export default function GameLog({ log }: { log: LogEntry[] }) {

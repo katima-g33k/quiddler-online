@@ -4,10 +4,9 @@ import { api } from "@/lib/client";
 import type { PublicState } from "@/lib/types";
 import { Badge, BadgeTone } from "./Badge";
 import { Button, ButtonVariant } from "./Button";
-import { Panel } from "./Panel";
-import { Table } from "./Table";
+import { Panel, Row, Stack } from "./Layout";
+import { NumericCell, Table } from "./Table";
 import { H2 } from "./Typography";
-import { cx, numCell, row, stack } from "./ui";
 
 interface Props {
 	state: PublicState;
@@ -34,8 +33,8 @@ export default function RoundSummary({ state, token, busy, action }: Props) {
 	const { bonusLongestWord, bonusMostWords } = state.settings;
 
 	return (
-		<Panel className={stack}>
-			<div className={cx(row, "justify-between")}>
+		<Panel as={Stack}>
+			<Row className="justify-between">
 				<H2>
 					Round {round.round} results{" "}
 					<span className="text-sm text-stone-400">
@@ -53,19 +52,19 @@ export default function RoundSummary({ state, token, busy, action }: Props) {
 						{isLastRound ? "See final scores" : `Deal round ${round.round + 1}`}
 					</Button>
 				)}
-			</div>
+			</Row>
 
 			<Table>
 				<thead>
 					<tr>
 						<th>Player</th>
 						<th>Words</th>
-						<th className={numCell}>Cards</th>
-						<th className={numCell}>Unused</th>
-						{bonusLongestWord && <th className={numCell}>Longest</th>}
-						{bonusMostWords && <th className={numCell}>Most</th>}
-						<th className={numCell}>Round</th>
-						<th className={numCell}>Total</th>
+						<NumericCell isTitle>Cards</NumericCell>
+						<NumericCell isTitle>Unused</NumericCell>
+						{bonusLongestWord && <NumericCell isTitle>Longest</NumericCell>}
+						{bonusMostWords && <NumericCell isTitle>Most</NumericCell>}
+						<NumericCell isTitle>Round</NumericCell>
+						<NumericCell isTitle>Total</NumericCell>
 					</tr>
 				</thead>
 				<tbody>
@@ -93,8 +92,8 @@ export default function RoundSummary({ state, token, busy, action }: Props) {
 										<span className="text-stone-400">—</span>
 									)}
 								</td>
-								<td className={numCell}>{r.wordPoints}</td>
-								<td className={numCell}>
+								<NumericCell>{r.wordPoints}</NumericCell>
+								<NumericCell>
 									{r.penalty ? (
 										<span
 											className="text-red-400"
@@ -105,31 +104,31 @@ export default function RoundSummary({ state, token, busy, action }: Props) {
 									) : (
 										<span className="text-stone-400">0</span>
 									)}
-								</td>
+								</NumericCell>
 								{bonusLongestWord && (
-									<td className={numCell}>
+									<NumericCell>
 										{r.longestWordBonus ? (
 											<span className="text-green-400">+10</span>
 										) : (
 											"—"
 										)}
-									</td>
+									</NumericCell>
 								)}
 								{bonusMostWords && (
-									<td className={numCell}>
+									<NumericCell>
 										{r.mostWordsBonus ? (
 											<span className="text-green-400">+10</span>
 										) : (
 											"—"
 										)}
-									</td>
+									</NumericCell>
 								)}
-								<td className={numCell}>
+								<NumericCell>
 									<strong>{signed(r.roundScore)}</strong>
-								</td>
-								<td className={numCell}>
+								</NumericCell>
+								<NumericCell>
 									<strong>{r.totalAfter}</strong>
-								</td>
+								</NumericCell>
 							</tr>
 						))}
 				</tbody>

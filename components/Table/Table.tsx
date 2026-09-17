@@ -1,9 +1,4 @@
-import type { DetailedHTMLProps, TableHTMLAttributes } from "react";
-
-type TableProps = DetailedHTMLProps<
-	TableHTMLAttributes<HTMLTableElement>,
-	HTMLTableElement
->;
+import type { TableProps } from "./types";
 
 export const Table = ({ children, ...props }: TableProps) => (
 	<table

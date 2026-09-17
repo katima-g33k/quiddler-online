@@ -1,4 +1,4 @@
-import { Panel } from "./Panel";
+import { Panel } from "./Layout";
 
 export default function RulesPanel() {
 	return (

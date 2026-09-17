@@ -7,10 +7,10 @@ import { Badge, BadgeTone } from "./Badge";
 import { Button, ButtonSize, ButtonVariant } from "./Button";
 import { CardRow } from "./CardRow";
 import CardTile from "./CardTile";
+import { Panel, Row, Stack } from "./Layout";
 import { Notice, NoticeTone } from "./Notice";
-import { Panel } from "./Panel";
 import { H2, H3 } from "./Typography";
-import { cx, row, stack } from "./ui";
+import { cx } from "./ui";
 
 interface WordCheck {
 	word: string;
@@ -409,9 +409,9 @@ export default function PlayArea({
 	const turnPlayer = state.players.find((p) => p.id === state.turnPlayerId);
 
 	return (
-		<div className={stack}>
+		<Stack>
 			{/* ------------------------------ status ------------------------------ */}
-			<Panel className={cx(row, "justify-between")}>
+			<Panel as={Row} className="justify-between">
 				<div>
 					<H2>
 						Round {state.round} of {state.totalRounds}
@@ -432,14 +432,14 @@ export default function PlayArea({
 								: `Waiting for ${turnPlayer?.name ?? "the next player"}…`}
 					</div>
 				</div>
-				<div className={cx(row, "gap-1.5")}>
+				<Row className="gap-1.5">
 					{state.settings.bonusLongestWord && (
 						<Badge tone={BadgeTone.Warning}>longest word +10</Badge>
 					)}
 					{state.settings.bonusMostWords && (
 						<Badge tone={BadgeTone.Warning}>most words +10</Badge>
 					)}
-				</div>
+				</Row>
 			</Panel>
 
 			{state.wentOutPlayerId && (
@@ -498,9 +498,9 @@ export default function PlayArea({
 
 				{/* -------------------------- word builder ------------------------- */}
 				<div className="flex flex-col gap-2.5">
-					<div className={cx(row, "justify-between")}>
+					<Row className="justify-between">
 						<H3>Words</H3>
-						<div className={cx(row, "gap-1.5")}>
+						<Row className="gap-1.5">
 							<Button
 								variant={ButtonVariant.Ghost}
 								size={ButtonSize.sm}
@@ -517,8 +517,8 @@ export default function PlayArea({
 							>
 								Clear
 							</Button>
-						</div>
-					</div>
+						</Row>
+					</Row>
 
 					{wordEntries.map((entry, index) => {
 						const key = `word:${index}`;
@@ -567,7 +567,7 @@ export default function PlayArea({
 											<Badge>checking…</Badge>
 										)}
 									</span>
-									<div className={cx(row, "gap-1")}>
+									<Row className="gap-1">
 										{check && check.verdict !== "valid" && (
 											<Button
 												variant={ButtonVariant.Ghost}
@@ -594,7 +594,7 @@ export default function PlayArea({
 												✕
 											</Button>
 										)}
-									</div>
+									</Row>
 								</div>
 								<CardRow
 									cards={entry.cards}
@@ -660,7 +660,7 @@ export default function PlayArea({
 
 			{/* -------------------------------- hand ----------------------------- */}
 			<Panel>
-				<div className={cx(row, "justify-between")}>
+				<Row className="justify-between">
 					<H3>
 						Your hand · {you.hand.length} card{you.hand.length === 1 ? "" : "s"}
 					</H3>
@@ -670,8 +670,9 @@ export default function PlayArea({
 							: `Clicking a card adds it to word ${active.index + 1}`}
 						{" · drag a card onto another to re-order"}
 					</span>
-				</div>
+				</Row>
 				<CardRow
+					{...handZoneProps()}
 					data-zone="hand"
 					cards={handCards}
 					className={cx(
@@ -705,7 +706,7 @@ export default function PlayArea({
 					}}
 				/>
 
-				<div className={cx(row, "mt-3.5")}>
+				<Row className="mt-3.5">
 					{!isFinalTurn && (
 						<>
 							<Button
@@ -753,7 +754,7 @@ export default function PlayArea({
 									: "Checking words…"}
 						</span>
 					)}
-				</div>
+				</Row>
 			</Panel>
 
 			{/* --------------------------- laid down ----------------------------- */}
@@ -761,30 +762,30 @@ export default function PlayArea({
 				<Panel className="flex flex-col gap-2.5">
 					<H3>Laid down this round</H3>
 					{state.players
-						.filter((p) => p.laid.length > 0)
-						.map((p) => (
-							<div key={p.id}>
+						.filter((player) => player.laid.length > 0)
+						.map((player) => (
+							<div key={player.id}>
 								<div className="text-sm text-stone-400">
-									{p.name}
-									{p.isYou && " (you)"}
+									{player.name}
+									{player.isYou && " (you)"}
 								</div>
-								<div className={cx(row, "mt-1 gap-4")}>
-									{p.laid.map((w) => (
-										<div
-											key={w.cards.map((c) => c.id).join("-")}
-											className={cx(row, "gap-1")}
+								<Row className="mt-1 gap-4">
+									{player.laid.map((word) => (
+										<Row
+											key={word.cards.map((card) => card.id).join("-")}
+											className="gap-1"
 										>
-											{w.cards.map((c) => (
-												<CardTile key={c.id} card={c} small />
+											{word.cards.map((card) => (
+												<CardTile key={card.id} card={card} small />
 											))}
-											<Badge>{w.points}</Badge>
-										</div>
+											<Badge>{word.points}</Badge>
+										</Row>
 									))}
-								</div>
+								</Row>
 							</div>
 						))}
 				</Panel>
 			)}
-		</div>
+		</Stack>
 	);
 }
